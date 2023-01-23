@@ -1,4 +1,21 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿/// <summary>
+/// Author:    Matthew Goh
+/// Partner:   None
+/// Date:      23 Jan 2023
+/// Course:    CS 3500, University of Utah, School of Computing
+/// Copyright: CS 3500 and Matthew Goh - This work may not 
+///            be copied for use in Academic Coursework.
+///
+/// I, Matthew Goh, certify that I wrote this code from scratch and
+/// did not copy it in part or whole from another source.  All 
+/// references used in the completion of the assignments are cited 
+/// in my README file.
+///
+/// File Contents
+///
+/// This console application runs a series of tests that ensures the 
+/// methods in the library class function correctly.
+/// </summary>
 using FormulaEvaluator;
 
 // Test simple addition and subtraction
@@ -73,19 +90,87 @@ catch (ArgumentException)
 
 try
 {
-    Console.WriteLine(Evaluator.Evaluate("4(11 + 2) + 9(21)", null));
+    Console.WriteLine(Evaluator.Evaluate("(6)(12)", null));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("(6)(12) is INVALID");
+}
+
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("4(11) + 9(21)", null));
 }
 catch (ArgumentException)
 {
     Console.WriteLine("(4(11) + 9(21) is INVALID");
 }
 
+//Test divide by 0
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("10/0", null));
+}
+catch (DivideByZeroException)
+{
+    Console.WriteLine("10/0 is INVALID");
+}
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("100 + 10 * 5 + 3/0", null));
+}
+catch (DivideByZeroException)
+{
+    Console.WriteLine("100 + 10 * 5 + 3/0 is INVALID");
+}
+
 // Test variables
 Console.WriteLine($"(10 + X1 / 5 + 3) = {Evaluator.Evaluate("(10 + X1 / 5 + 3)", var)}");
+Console.WriteLine($"(X1 + X1 / 5 + X1) = {Evaluator.Evaluate("(X1 + X1 / 5 + X1)", var)}");
+Console.WriteLine($"(Xxx2341 + Xxx2341 / 3 + Xxx2341) = {Evaluator.Evaluate("(Xxx2341 + Xxx2341 / 3 + Xxx2341)", var2)}");
+Console.WriteLine($"Ghsd421uy + 9 = {Evaluator.Evaluate("Ghsd421uy + 9", var4)}");
 
+// Test invalid variables
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("A + 9", var3));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("A + 9 is INVALID");
+}
+
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("G + 9", var5));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("G + 9 is INVALID");
+}
 
 int var (string X1)
 {
     return 16;
+}
+
+int var2(string Xxx2341)
+{
+    return 9;
+}
+
+int var3(string A)
+{
+    return 8;
+}
+
+int var4(string Ghsd421uy)
+{
+    return 8;
+}
+
+int var5(string A)
+{
+    return -10;
 }
 
