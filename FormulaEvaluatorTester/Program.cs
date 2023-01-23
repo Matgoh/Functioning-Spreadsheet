@@ -28,6 +28,7 @@ Console.WriteLine($"590-253 = {Evaluator.Evaluate("590-253", null)}");
 Console.WriteLine($"(5+3) = {Evaluator.Evaluate("(5+3)", null)}");
 Console.WriteLine($"(436+842) = {Evaluator.Evaluate("( 436+ 842  )", null)}");
 Console.WriteLine($"(590-253) = {Evaluator.Evaluate("(590 -   253)", null)}");
+Console.WriteLine($"((((590-253)))) = {Evaluator.Evaluate("((((590 -   253))))", null)}");
 
 // Test simple multiplication
 Console.WriteLine($"(12 * 12) = {Evaluator.Evaluate("(12 * 12)", null)}");
@@ -41,6 +42,7 @@ Console.WriteLine($"(231 / 14) = {Evaluator.Evaluate("(231 / 14)", null)}");
 Console.WriteLine($"(10 + 10 / 5 + 3) = {Evaluator.Evaluate("(10 + 10 / 5 + 3)", null)}");
 Console.WriteLine($"(10 + 10 / 5 * 3) = {Evaluator.Evaluate("(10 + 10 / 5 * 3)", null)}");
 Console.WriteLine($"(9+8) * 12 + (8 - 5) = {Evaluator.Evaluate("(9+8) * 12 + (8 - 5)", null)}");
+Console.WriteLine($"(2 + 5 + (4 * 4) * (3 * 3)) = {Evaluator.Evaluate("(2 + 5 + (4 * 4) * (3 * 3))", null)}");
 
 // Test invalid input exceptions
 try
@@ -106,12 +108,48 @@ catch (ArgumentException)
     Console.WriteLine("(4(11) + 9(21) is INVALID");
 }
 
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("(4 + 5", null));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("(4 + 5 is INVALID");
+}
+
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("4 + 5)", null));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("4 + 5) is INVALID");
+}
+
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("helloWorld", null));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("helloWorld is INVALID");
+}
+
+try
+{
+    Console.WriteLine(Evaluator.Evaluate("19 + 5 * 3 + #", null));
+}
+catch (ArgumentException)
+{
+    Console.WriteLine("19 + 5 * 3 + # is INVALID");
+}
+
 //Test divide by 0
 try
 {
     Console.WriteLine(Evaluator.Evaluate("10/0", null));
 }
-catch (DivideByZeroException)
+catch (ArgumentException)
 {
     Console.WriteLine("10/0 is INVALID");
 }
@@ -119,7 +157,7 @@ try
 {
     Console.WriteLine(Evaluator.Evaluate("100 + 10 * 5 + 3/0", null));
 }
-catch (DivideByZeroException)
+catch (ArgumentException)
 {
     Console.WriteLine("100 + 10 * 5 + 3/0 is INVALID");
 }
@@ -129,6 +167,7 @@ Console.WriteLine($"(10 + X1 / 5 + 3) = {Evaluator.Evaluate("(10 + X1 / 5 + 3)",
 Console.WriteLine($"(X1 + X1 / 5 + X1) = {Evaluator.Evaluate("(X1 + X1 / 5 + X1)", var)}");
 Console.WriteLine($"(Xxx2341 + Xxx2341 / 3 + Xxx2341) = {Evaluator.Evaluate("(Xxx2341 + Xxx2341 / 3 + Xxx2341)", var2)}");
 Console.WriteLine($"Ghsd421uy + 9 = {Evaluator.Evaluate("Ghsd421uy + 9", var4)}");
+Console.WriteLine($"9 + 9 * 5 + 3 = {Evaluator.Evaluate("9 + 9 * 5 + 3", var4)}");
 
 // Test invalid variables
 try
@@ -169,8 +208,7 @@ int var4(string Ghsd421uy)
     return 8;
 }
 
-int var5(string A)
+int var5(string G)
 {
     return -10;
 }
-
