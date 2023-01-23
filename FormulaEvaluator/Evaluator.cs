@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.Serialization;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FormulaEvaluator
 {
@@ -36,87 +38,95 @@ namespace FormulaEvaluator
             Stack<int> valueStack = new Stack<int>();
             Stack<string> operatorStack = new Stack<string>();
 
+            // Create regular expression outside the "for loop"
+            string strRegex = @"[a-zA-z]+\d+";
+            Regex var = new Regex(strRegex);
+
             for (int i = 0; i < substrings.Length; i++)
             {
-                // If the value is an integer... 
-                if (int.TryParse(substrings[i], out int integer)) 
-                { 
-                    if (operatorStack.Peek() == "*" || operatorStack.Peek() == "/")
+                try
+                {
+                    // If the value is an integer... 
+                    if (int.TryParse(substrings[i], out int integer))
                     {
-                        valueStack.Push(Compute(valueStack.Pop(), integer, operatorStack.Pop()));
+                        if (operatorStack.Count() > 0 && operatorStack.Peek() == "*" || operatorStack.Count() > 0 && operatorStack.Peek() == "/")
+                        {
+                            valueStack.Push(Compute(valueStack.Pop(), integer, operatorStack.Pop()));
+                        }
+                        else
+                        {
+                            valueStack.Push(integer);
+                        }
                     }
-                    else
+
+                    // If t is a variable...
+                    if (var.IsMatch(substrings[i]))
                     {
-                        valueStack.Push(integer);
+                        if (operatorStack.Count() > 0 && operatorStack.Peek() == "*" || operatorStack.Count() > 0 && operatorStack.Peek() == "/")
+                        {
+                            valueStack.Push(Compute(valueStack.Pop(), variableEvaluator(substrings[i]), operatorStack.Pop()));
+                        }
+
+                        else
+                        {
+                            valueStack.Push(variableEvaluator(substrings[i]));
+                        }
+                    }
+
+                    // If t is + or -...
+                    if (substrings[i] == "+" || substrings[i] == "-")
+                    {
+                        if (operatorStack.Count() > 0 && operatorStack.Peek() == "+" || operatorStack.Count() > 0 && operatorStack.Peek() == "-")
+                        {
+                            int secondVal = valueStack.Pop();
+
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
+                        operatorStack.Push(substrings[i]);
+                    }
+
+                    // If t is *, /, or (...
+                    if (substrings[i] == "*" || substrings[i] == "/" || substrings[i] == "(")
+                    {
+                        operatorStack.Push(substrings[i]);
+                    }
+
+                    // If t is )...
+                    if (substrings[i] == ")")
+                    {
+                        if (operatorStack.Count() > 0 && operatorStack.Peek() == "+" || operatorStack.Count() > 0 && operatorStack.Peek() == "-")
+                        {
+                            int secondVal = valueStack.Pop();
+
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
+
+                        operatorStack.Pop();
+
+                        if (operatorStack.Count() > 0 && operatorStack.Peek() == "*" || operatorStack.Count() > 0 && operatorStack.Peek() == "/")
+                        {
+                            int secondVal = valueStack.Pop();
+
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
                     }
                 }
-
-                // If t is a variable...
-                string strRegex = @"[a-z] + \d +";
-                Regex var = new Regex(strRegex);
-
-                if (var.IsMatch(substrings[i]))
+                catch (Exception e)
                 {
-                    if (operatorStack.Peek() == "*" || operatorStack.Peek() == "/")
-                    {
-                        valueStack.Push(Compute(valueStack.Pop(), variableEvaluator(substrings[i]), operatorStack.Pop()));
-                    }
-
-                    else
-                    {
-                        valueStack.Push(variableEvaluator(substrings[i]));
-                    }
-                }
-
-                // If t is + or -...
-                if (substrings[i] == "+" || substrings[i] == "-")
-                {
-                    if (operatorStack.Peek() == "+" || operatorStack.Peek() == "-")
-                    {
-                        int firstValue = valueStack.Pop();
-
-                        valueStack.Push(Compute(firstValue, valueStack.Pop(), operatorStack.Pop()));
-                    }
-                    operatorStack.Push(substrings[i]);
-                }
-
-                // If t is *, /, or (...
-                if (substrings[i] == "*" || substrings[i] == "/" || substrings[i] == "(")
-                {
-                    operatorStack.Push(substrings[i]);
-                }
-
-                // If t is )...
-                if (substrings[i] == ")")
-                {
-                    if (operatorStack.Peek() == "+" || operatorStack.Peek() == "-")
-                    {
-                        int firstValue = valueStack.Pop();
-
-                        valueStack.Push(Compute(firstValue, valueStack.Pop(), operatorStack.Pop()));
-                    }
-
-                    operatorStack.Pop();
-
-                    if (operatorStack.Peek() == "*" || operatorStack.Peek() == "/")
-                    {
-                        int firstValue = valueStack.Pop();
-
-                        valueStack.Push(Compute(firstValue, valueStack.Pop(), operatorStack.Pop()));
-                    }
+                    throw new ArgumentException("Invalid input", e);
                 }
 
             }
-            if (valueStack.Count == 0)
+            if (operatorStack.Count == 0)
             {
                 return valueStack.Pop();    
             }
 
-            if (valueStack.Count != 0)
+            if (operatorStack.Count != 0)
             {
-                int firstValue = valueStack.Pop();
+                int secondVal = valueStack.Pop();
 
-                return (Compute(firstValue, valueStack.Pop(), operatorStack.Pop()));
+                return (Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
             }
             else throw new ArgumentException();
         }
@@ -141,7 +151,7 @@ namespace FormulaEvaluator
                 return leftNum - rightNum;
 
             // If operation is none of the above, then throw exception
-            throw new ArgumentException();
+            else throw new ArgumentException();
         }
     }
 }
