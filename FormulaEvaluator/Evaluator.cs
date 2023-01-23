@@ -66,6 +66,8 @@ namespace FormulaEvaluator
                 // If t is a variable...
                 if (var.IsMatch(substrings[i]))
                 {
+                    // When operator stack contains "*" or "/" and the value stack is not empty, compute value on stack, variable, and
+                    // operator and push to value stack
                     if (operatorStack.Count > 0 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/") && valueStack.Count > 0)
                     {
                         valueStack.Push(Compute(valueStack.Pop(), variableEvaluator(substrings[i]), operatorStack.Pop()));
@@ -80,8 +82,8 @@ namespace FormulaEvaluator
                 // If t is + or -...
                 if (substrings[i] == "+" || substrings[i] == "-")
                 {
-                    // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and compute 
-                    if (operatorStack.Count > 0 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-") && valueStack.Count >= 2)
+                    // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
+                    if (operatorStack.Count > 0 && valueStack.Count >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
                     {
                         int secondVal = valueStack.Pop();
 
@@ -99,6 +101,7 @@ namespace FormulaEvaluator
                 // If t is )...
                 if (substrings[i] == ")")
                 {
+                    // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
                     if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
                     {
                         int secondVal = valueStack.Pop();
@@ -111,6 +114,7 @@ namespace FormulaEvaluator
                     else
                         throw new ArgumentException();
 
+                    // Same conditions as above with different operators
                     if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/"))
                     {
                         int secondVal = valueStack.Pop();
@@ -156,7 +160,7 @@ namespace FormulaEvaluator
             if (operation == "/")
             {
                 if (rightNum == 0)
-                    throw new DivideByZeroException("Cannot divide by 0");
+                    throw new ArgumentException("Cannot divide by 0");
                 else
                     return leftNum / rightNum;
             }
