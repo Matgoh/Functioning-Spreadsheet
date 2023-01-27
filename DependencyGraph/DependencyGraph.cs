@@ -57,8 +57,7 @@ namespace SpreadsheetUtilities
     {
         Dictionary<String, HashSet<String>> dependents;
         Dictionary<String, HashSet<String>> dependees;
-        int dependentsSize = 0;
-        int dependeesSize = 0;
+        int numOfPairs = 0;
 
         /// <summary>
         /// Creates an empty DependencyGraph.
@@ -75,7 +74,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int Size
         {
-            get { return dependentsSize; }
+            get { return numOfPairs; }
         }
 
 
@@ -88,7 +87,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return dependeesSize; }
+            get { return dependees.Count; }
         }
 
 
@@ -125,8 +124,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<string> GetDependents(string s)
         {
-            if (dependents.ContainsKey(s))
+            if (dependees.ContainsKey(s))
             {
+                // Return a copied set of all dependents at s.
                 HashSet<string> returnDependents = new HashSet<string>(dependees[s]);
                 return returnDependents;
             }
@@ -141,6 +141,7 @@ namespace SpreadsheetUtilities
         {
             if (dependents.ContainsKey(s))
             {
+                // Return a copied set of all dependees at s.
                 HashSet<string> returnDependees = new HashSet<string>(dependents[s]);
                 return returnDependees;
             }
@@ -163,19 +164,23 @@ namespace SpreadsheetUtilities
         /// <param name="t"> t cannot be evaluated until s is</param>        /// 
         public void AddDependency(string s, string t)
         {
-            // If dependees does not contain the key, add dependee and the set of dependents
+            // If dependent or dependee does not exist in dictionary, add count
+            if (!dependees.ContainsKey(s) || !dependents.ContainsKey(t))
+            {
+                numOfPairs++;
+            }
+
+            // If dependees does not contain the key, add dependee and the set of dependents to dictionary
             if (!dependees.ContainsKey(s))
             {
                 HashSet<string> dependentsSet = new HashSet<string>();
                 dependentsSet.Add(t);
                 dependees.Add(s, dependentsSet);
-                dependeesSize++;
             }
             // If it does contain the key, add the dependents to "s."
             else
             {
                 dependees[s].Add(t);
-                dependeesSize++;
             }
 
             // If dependents does not contain the key, add dependent and the set of dependees
@@ -184,13 +189,11 @@ namespace SpreadsheetUtilities
                 HashSet<string> dependeesSet = new HashSet<string>();
                 dependeesSet.Add(s);
                 dependents.Add(t, dependeesSet);
-                dependentsSize++;
             }
             // If it does contain the key, add dependee to "t."
             else
             {
                 dependents[t].Add(s);
-                dependentsSize++;
             }
         }
 
@@ -202,16 +205,22 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
+            // If dependent or dependee does exist in dictionary, remove count
+            if (dependees.ContainsKey(s) || dependents.ContainsKey(t))
+            {
+                numOfPairs--;
+            }
+
+            // If dependee contains key, remove specified dependent
             if (dependees.ContainsKey(s))
             {
                 dependees[s].Remove(t);
-                dependeesSize--;
             }
 
+            // If dependent contains key, remove specified dependee
             if (dependents.ContainsKey(t))
             {
                 dependents[t].Remove(s);
-                dependentsSize--;
             }           
         }
 
@@ -226,13 +235,11 @@ namespace SpreadsheetUtilities
             foreach (string dependent in removeDependents)
             {
                 RemoveDependency(s, dependent);
-                dependentsSize--;
             }
 
             foreach(string dependent in newDependents)
             {
                 AddDependency(s, dependent);
-                dependentsSize++;
             }
         }
 
@@ -247,13 +254,11 @@ namespace SpreadsheetUtilities
             foreach (string dependee in removeDependees)
             {
                 RemoveDependency(s, dependee);
-                dependeesSize--;
             }
 
             foreach (string dependee in newDependees)
             {
                 AddDependency(s, dependee);
-                dependeesSize++;
             }
         }
 
