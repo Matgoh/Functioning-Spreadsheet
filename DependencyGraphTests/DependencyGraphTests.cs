@@ -7,6 +7,20 @@ using SpreadsheetUtilities;
 namespace DevelopmentTests
 {
     /// <summary>
+    /// Author:    Matthew Goh
+    /// Partner:   None
+    /// Date:      26 Jan 2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Matthew Goh - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Matthew Goh, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    /// 
     ///This is a test class for DependencyGraphTest and is intended
     ///to contain all DependencyGraphTest Unit Tests
     ///</summary>
@@ -15,7 +29,7 @@ namespace DevelopmentTests
     {
 
         /// <summary>
-        ///Empty graph should contain nothing
+        ///Empty graph should have size 0.
         ///</summary>
         [TestMethod()]
         public void SimpleEmptyTest()
@@ -26,7 +40,96 @@ namespace DevelopmentTests
 
 
         /// <summary>
-        ///Empty graph should contain nothing
+        /// Adding to DG should alter size as well as contain specified dependees and dependents
+        ///</summary>
+        [TestMethod()]
+        public void SimpleAddTest()
+        {
+            DependencyGraph t = new DependencyGraph();
+            t.AddDependency("a", "b");
+            Assert.AreEqual(1, t.Size);
+
+            // Adding the same pair should not increase size...
+            t.AddDependency("a", "b");
+            Assert.AreEqual(1, t.Size);
+
+            // Ensure that we have the dependents and dependees in the dictionaries
+            Assert.IsTrue(t.HasDependents("b"));
+            Assert.IsTrue(t.HasDependees("a"));
+
+            t.AddDependency("b", "a");
+            t.AddDependency("t", "b");
+            Assert.AreEqual(3, t.Size);
+            Assert.IsTrue(t.HasDependees("t"));
+            Assert.IsTrue(t.HasDependees("b"));
+            Assert.AreEqual(2, t["b"]);
+        }
+
+        /// <summary>
+        /// Test if the right dependee size is returned.
+        /// </summary>
+        [TestMethod()]
+        public void TestDependeeSize()
+        {
+            DependencyGraph t = new DependencyGraph();
+
+            // 0 should be returned if "a" is not a dependent
+            Assert.AreEqual(0, t["a"]);
+
+            // Dependee size should be returned appropriately
+            t.AddDependency("a", "b");
+            Assert.AreEqual(1, t["b"]);
+            t.AddDependency("a", "b");
+            t.AddDependency("g", "b");
+            t.AddDependency("h", "b");
+            Assert.AreEqual(3, t["b"]);
+            Assert.AreEqual(0, t["g"]);
+        }
+
+        /// <summary>
+        /// Test if existence of certain dependents are correctly returned.
+        /// </summary>
+        [TestMethod()]
+        public void TestHasDependents()
+        {
+            DependencyGraph t = new DependencyGraph();
+
+            // Return false if the specified dependents do not exist
+            Assert.IsFalse(t.HasDependents("g"));
+            t.AddDependency("a", "b");
+            t.AddDependency("c", "d");
+            Assert.IsFalse(t.HasDependents("a"));
+            Assert.IsFalse(t.HasDependents("c"));
+            Assert.IsFalse(t.HasDependents("e"));
+
+            // Return true if it does exist
+            Assert.IsTrue(t.HasDependents("b"));
+            Assert.IsTrue(t.HasDependents("d"));
+        }
+
+        /// <summary>
+        /// Test if existence of certain dependees are correctly returned.
+        /// </summary>
+        [TestMethod()]
+        public void TestHasDependees()
+        {
+            DependencyGraph t = new DependencyGraph();
+
+            // Return false if the specified dependents do not exist
+            Assert.IsFalse(t.HasDependees("g"));
+            t.AddDependency("a", "b");
+            t.AddDependency("c", "d");
+            Assert.IsFalse(t.HasDependees("b"));
+            Assert.IsFalse(t.HasDependees("d"));
+            Assert.IsFalse(t.HasDependees("e"));
+
+            // Return true if it does exist
+            Assert.IsTrue(t.HasDependees("a"));
+            Assert.IsTrue(t.HasDependees("c"));
+        }
+
+        /// <summary>
+        /// Tests the remove method
         ///</summary>
         [TestMethod()]
         public void SimpleEmptyRemoveTest()
@@ -36,11 +139,30 @@ namespace DevelopmentTests
             Assert.AreEqual(1, t.Size);
             t.RemoveDependency("x", "y");
             Assert.AreEqual(0, t.Size);
+            t.AddDependency("a", "b");
+
+            // Removing these ordered pairs should not affect the contents and size.
+            t.RemoveDependency("x", "b");
+            t.RemoveDependency("a", "x");
+            Assert.AreEqual(1, t.Size);
+            Assert.IsTrue(t.HasDependents("b"));
+            Assert.IsTrue(t.HasDependees("a"));
+
+            // Ensure that the right size is returned for removed dependencies.
+            t.AddDependency("b", "a");
+            t.AddDependency("d", "b");
+            Assert.AreEqual(3, t.Size);
+            t.RemoveDependency("d", "b");
+            Assert.AreEqual(2, t.Size);
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(1, t.Size);
+            t.RemoveDependency("b", "a");
+            Assert.AreEqual(0, t.Size);
         }
 
 
         /// <summary>
-        ///Empty graph should contain nothing
+        /// Test an empty Enumerator.
         ///</summary>
         [TestMethod()]
         public void EmptyEnumeratorTest()
@@ -76,7 +198,7 @@ namespace DevelopmentTests
 
 
         ///<summary>
-        ///It should be possibe to have more than one DG at a time.
+        ///It should be possible to have more than one DG at a time.
         ///</summary>
         [TestMethod()]
         public void StaticTest()
@@ -92,7 +214,7 @@ namespace DevelopmentTests
 
 
         /// <summary>
-        ///Non-empty graph contains something
+        /// Correct size should be returned, removing unknown pairs should not alter size
         ///</summary>
         [TestMethod()]
         public void SizeTest()
@@ -103,11 +225,15 @@ namespace DevelopmentTests
             t.AddDependency("c", "b");
             t.AddDependency("b", "d");
             Assert.AreEqual(4, t.Size);
+            t.RemoveDependency("a", "b");
+            Assert.AreEqual(3, t.Size);
+            t.RemoveDependency("a", "g");
+            Assert.AreEqual(3, t.Size);
         }
 
 
         /// <summary>
-        ///Non-empty graph contains something
+        /// Test non-empty enumerator.
         ///</summary>
         [TestMethod()]
         public void EnumeratorTest()
@@ -144,7 +270,7 @@ namespace DevelopmentTests
 
 
         /// <summary>
-        ///Non-empty graph contains something
+        /// Test combination of replace and enumerate.
         ///</summary>
         [TestMethod()]
         public void ReplaceThenEnumerate()
