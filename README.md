@@ -1,21 +1,22 @@
 Author:     Matthew Goh
 Partner:    None
-Start Date: 18-Jan-2022
+Start Date: 23-Jan-2022
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  Matgoh
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-Matgoh
-Commit Date: 23-January-2023 5:28 AM
+Commit Date: 26-January-2023 10:33 PM
 Solution:   Spreadsheet
 Copyright:  CS 3500 and Matthew Goh - This work may not be copied for use in Academic Coursework.
 ```
 
 # Overview of the Spreadsheet functionality
 
-The Spreadsheet program is currently capable of evaluating the answer to a given expression, with a few limitations. Future extensions are 
-allowing for the calculations of negative numbers as well as more opertations. Further, this assignment will allow for the manipulation of 
-data on a spreadsheet. 
+The Spreadsheet program is currently capable of evaluating the answer to a given expression, with a few limitations, and it also has the 
+ability to conduct a series of operations on an ordered pair that represents the dependents and dependees of a dependency graph. Future 
+extensions are allowing for the calculations of negative numbers for expressions and the fixing of loops on dependent and dependee variables.
+Eventually, this assignment will allow for the manipulation of data on a spreadsheet. 
 
 # Time Expenditures:
 
     1. Assignment One:   Predicted Hours:          13        Actual Hours:   16 (Figuring out assignment/Visual Studio - 3, Formulating code - 5, Debugging/testing/formatting - 8)
-    2. Assignment Two:   Predicted Hours:           N/A        Actual Hours:    N/A
+    2. Assignment Two:   Predicted Hours:          17        Actual Hours:   14 (Formulating code - 5, Debugging/testing/formatting - 7, figuring out assignment/Visual Studio - 2)
