@@ -17,7 +17,7 @@ namespace SpreadsheetUtilities
     /// <summary>
     /// Author:    Matthew Goh
     /// Partner:   None
-    /// Date:      23 Jan 2023
+    /// Date:      26 Jan 2023
     /// Course:    CS 3500, University of Utah, School of Computing
     /// Copyright: CS 3500 and Matthew Goh - This work may not 
     ///            be copied for use in Academic Coursework.
@@ -55,6 +55,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
+        // Two dictionary fields and int varuable to store dependents, dependees, and the amount of ordered pairs.
         Dictionary<String, HashSet<String>> dependents;
         Dictionary<String, HashSet<String>> dependees;
         int numOfPairs = 0;
@@ -87,7 +88,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public int this[string s]
         {
-            get { return dependees.Count; }
+            get 
+            {
+                // If dependents have the input value, return all the dependees associated with it.
+                if (dependents.ContainsKey(s))
+                {
+                    return dependents[s].Count;
+                }
+                else
+                    return 0;
+            }
         }
 
 
@@ -127,8 +137,8 @@ namespace SpreadsheetUtilities
             if (dependees.ContainsKey(s))
             {
                 // Return a copied set of all dependents at s.
-                HashSet<string> returnDependents = new HashSet<string>(dependees[s]);
-                return returnDependents;
+                HashSet<string> dependentsAts = new HashSet<string>(dependees[s]);
+                return dependentsAts;
             }
             else 
                 return Enumerable.Empty<string>();
@@ -142,8 +152,8 @@ namespace SpreadsheetUtilities
             if (dependents.ContainsKey(s))
             {
                 // Return a copied set of all dependees at s.
-                HashSet<string> returnDependees = new HashSet<string>(dependents[s]);
-                return returnDependees;
+                HashSet<string> dependeesAtS = new HashSet<string>(dependents[s]);
+                return dependeesAtS;
             }
             else
                 return Enumerable.Empty<string>();
@@ -205,23 +215,26 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
-            // If dependent or dependee does exist in dictionary, remove count
-            if (dependees.ContainsKey(s) || dependents.ContainsKey(t))
+            // If dependent or dependee does exist in dictionaries, remove dependent and
+            // dependee from dictionaries and decrease count
+            if (dependees.ContainsKey(s) && dependents.ContainsKey(t))
             {
+                dependees[s].Remove(t);
+                dependents[t].Remove(s);
                 numOfPairs--;
             }
 
-            // If dependee contains key, remove specified dependent
-            if (dependees.ContainsKey(s))
+            // If dependee contains key and there are no more dependents, remove the key.
+            if (dependees.ContainsKey(s) && dependees[s].Count == 0)
             {
-                dependees[s].Remove(t);
+                dependees.Remove(s);
             }
 
-            // If dependent contains key, remove specified dependee
-            if (dependents.ContainsKey(t))
+            // If dependent contains key and has no more dependees, remove the key.
+            if (dependents.ContainsKey(t) && dependents[t].Count == 0)
             {
-                dependents[t].Remove(s);
-            }           
+                dependents.Remove(t);
+            }
         }
 
 
@@ -231,6 +244,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
+            // Set dependents of s to a new Enumerable.
             IEnumerable <string> removeDependents = GetDependents(s);
             foreach (string dependent in removeDependents)
             {
@@ -250,15 +264,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            // Set dependees of s to a new Enumerable.
             IEnumerable<string> removeDependees = GetDependees(s);
             foreach (string dependee in removeDependees)
             {
-                RemoveDependency(s, dependee);
+                RemoveDependency(dependee, s);
             }
 
             foreach (string dependee in newDependees)
             {
-                AddDependency(s, dependee);
+                AddDependency(dependee, s);
             }
         }
 
