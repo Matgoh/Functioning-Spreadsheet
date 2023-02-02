@@ -55,10 +55,10 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class DependencyGraph
     {
-        // Two dictionary fields and int varuable to store dependents, dependees, and the amount of ordered pairs.
+        // Two dictionary fields and int variable to store dependents, dependees, and the amount of ordered pairs.
         Dictionary<String, HashSet<String>> dependents;
         Dictionary<String, HashSet<String>> dependees;
-        int numOfPairs = 0;
+        int numOfPairs;
 
         /// <summary>
         /// Creates an empty DependencyGraph.
@@ -67,6 +67,7 @@ namespace SpreadsheetUtilities
         {
             dependents = new Dictionary<String, HashSet<String>>();
             dependees = new Dictionary<String, HashSet<String>>();
+            numOfPairs = 0;
         }
 
 
