@@ -47,6 +47,7 @@ namespace SpreadsheetUtilities
     public class Formula
     {
         private List<String> tokens;
+        private List<String> normalized;
 
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -87,9 +88,12 @@ namespace SpreadsheetUtilities
         {
             // Move all the contents of the input string to a list
             tokens = new List<string>(GetTokens(formula));
-            
+
+            // Create list to store normalized values
+            normalized = new List<string>();
+
             // If the first item is an operator or closing parenthesis, throw an exception 
-            if (tokens[0] == "+" || tokens[0] == "-" || tokens[0] == "*" ||  tokens[0] == "/" || tokens[0] == ")")
+            if (tokens[0] == "+" || tokens[0] == "-" || tokens[0] == "*" || tokens[0] == "/" || tokens[0] == ")")
             {
                 throw new FormulaFormatException("Formula can not begin with an operator or closing parenthesis");
             }
@@ -105,7 +109,7 @@ namespace SpreadsheetUtilities
 
             // Keep track of the index of the previous token
             int prevToken = 0;
-            
+
             for (int i = 0; i < tokens.Count; i++)
             {
                 // If token is a open parenthesis
@@ -118,10 +122,14 @@ namespace SpreadsheetUtilities
                 // If token is a closing parenthesis
                 if (tokens[i] == ")")
                 {
-                    // If the previous token is an opening parenthesis, throw
-                    if (tokens[prevToken] == "(")
+                    // If this is not the first iteration, then check if previous will throw
+                    if (i != 0)
                     {
-                        throw new FormulaFormatException("Must have a value between the parenthesis");
+                        // If the previous token is an opening parenthesis, throw
+                        if (tokens[prevToken] == "(")
+                        {
+                            throw new FormulaFormatException("Must have a value between the parenthesis");
+                        }
                     }
                     closePar++;
                     prevToken = i;
@@ -130,10 +138,14 @@ namespace SpreadsheetUtilities
                 // If token is a valid number
                 if (double.TryParse(tokens[i], out double number))
                 {
-                    // If the previous value is a number, then throw exception
-                    if (double.TryParse(tokens[prevToken], out double value))
+                    // If this is not the first iteration, then check if previous will throw
+                    if (i != 0)
                     {
-                        throw new FormulaFormatException("Formula can not have two numbers sequentially");
+                        // If the previous value is a number, then throw exception
+                        if (double.TryParse(tokens[prevToken], out double result))
+                        {
+                            throw new FormulaFormatException("Formula can not have two numbers sequentially");
+                        }
                     }
                     prevToken = i;
                 }
@@ -141,24 +153,38 @@ namespace SpreadsheetUtilities
                 // If token is a valid operator
                 if (validOp(tokens[i]))
                 {
-                    // If previous token is an operator, throw
-                    if (validOp(tokens[prevToken]))
+                    // If this is not the first iteration, then check if previous will throw
+                    if (i != 0)
                     {
-                        throw new FormulaFormatException("Formula can not have two operators sequentially");
+                        // If previous token is an operator, throw
+                        if (validOp(tokens[prevToken]))
+                        {
+                            throw new FormulaFormatException("Formula can not have two operators sequentially");
+                        }
                     }
                     prevToken = i;
                 }
+
                 // if the token is a valid variable input
                 if (varPattern.IsMatch(tokens[i]))
                 {
+                    // If the normalized token does not match the pattern, throw
+                    if (!varPattern.IsMatch(normalize(tokens[i])))
+                    {
+                        throw new FormulaFormatException("normalized variable does not match the pattern");
+                    }
 
-                }
-
-                throw new FormulaFormatException("Formula contains unknown operator, variable, or number");
+                    // If the normalized token does not match validator restrictions, throw
+                    if (!isValid(normalize(tokens[i])))
+                    {
+                        throw new FormulaFormatException("normalized variable does not comply with validator");
+                    }
+                    normalized.Add(tokens[i]); 
+                }             
             }
             if (openPar != closePar)
             {
-                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");                    missing a parenthesis");
+                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
             }
         }
 
@@ -185,8 +211,138 @@ namespace SpreadsheetUtilities
         /// </summary>
         public object Evaluate(Func<string, double> lookup)
         {
-            return null;
+
+            Stack<double> valueStack = new Stack<double>();
+            Stack<string> operatorStack = new Stack<string>();
+
+            // Create regular expression outside the for loop
+            string strRegex = @"[a-zA-Z_](?: [a-zA-Z_]|\d)*";
+            Regex var = new Regex(strRegex);
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                // If the value is an double... 
+                if (double.TryParse(tokens[i], out double value))
+                {
+                    if (operatorStack.Count > 0 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/") && valueStack.Count > 0)
+                    {
+                        valueStack.Push(Compute(valueStack.Pop(), value, operatorStack.Pop()));
+                    }
+                    else
+                    {
+                        valueStack.Push(value);
+                    }
+                }
+
+                // If t is a variable...
+                if (var.IsMatch(tokens[i]))
+                {
+                    // When operator stack contains "*" or "/" and the value stack is not empty, compute value on stack, variable, and
+                    // operator and push to value stack
+                    if (operatorStack.Count > 0 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/") && valueStack.Count > 0)
+                    {
+                        valueStack.Push(Compute(valueStack.Pop(), lookup(tokens[i]), operatorStack.Pop()));
+                    }
+
+                    else
+                    {
+                        valueStack.Push(lookup(tokens[i]));
+                    }
+                }
+
+                // If t is + or -...
+                if (tokens[i] == "+" || tokens[i] == "-")
+                {
+                    // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
+                    if (operatorStack.Count > 0 && valueStack.Count >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
+                    {
+                        double secondVal = valueStack.Pop();
+
+                        if (operatorStack.Peek() == "/" && secondVal == 0)
+                        {
+                            return new FormulaError("can not divide by 0");
+                        }
+                        else
+                        {
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
+                    }
+                    operatorStack.Push(tokens[i]);
+                }
+
+                // If t is *, /, or (...
+                if (tokens[i] == "*" || tokens[i] == "/" || tokens[i] == "(")
+                {
+                    operatorStack.Push(tokens[i]);
+                }
+
+                // If t is )...
+                if (tokens[i] == ")")
+                {
+                    // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
+                    if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
+                    {
+                        double secondVal = valueStack.Pop();
+
+                        // Catch divide by 0 error
+                        if (operatorStack.Peek() == "/" && secondVal == 0)
+                        {
+                            return new FormulaError("can not divide by 0");
+                        }
+                        else
+                        {
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
+                    }
+
+                    if (operatorStack.Count() > 0 && operatorStack.Peek() == "(")
+                        operatorStack.Pop();
+                    else
+                        throw new ArgumentException();
+
+                    // Same conditions as above with different operators
+                    if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/"))
+                    {
+                        double secondVal = valueStack.Pop();
+
+                        // Catch divide by 0 error
+                        if (operatorStack.Peek() == "/" && secondVal == 0)
+                        {
+                            return new FormulaError("can not divide by 0");
+                        }
+                        else
+                        {
+                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                        }
+                    }
+                }
+            }
+            // If there is 1 value left and no operators, return the last value
+            if (operatorStack.Count == 0 && valueStack.Count == 1)
+            {
+                return valueStack.Pop();
+            }
+
+            // If there are two more values in the stack and one more operation, compute then return
+            if (operatorStack.Count == 1 && valueStack.Count == 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
+            {
+                double secondVal = valueStack.Pop();
+
+                // Catch divide by 0 error
+                if (operatorStack.Peek() == "/" && secondVal == 0)
+                {
+                    return new FormulaError("can not divide by 0");
+                }
+                else
+                {
+                    return (Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
+                }
+            }
+
+            return new FormulaError("undefined variables");
+
         }
+
 
         /// <summary>
         /// Enumerates the normalized versions of all of the variables that occur in this 
@@ -201,7 +357,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<String> GetVariables()
         {
-            return null;
+            return normalized;
         }
 
         /// <summary>
@@ -294,7 +450,7 @@ namespace SpreadsheetUtilities
 
             // Overall pattern
             String pattern = String.Format("({0}) | ({1}) | ({2}) | ({3}) | ({4}) | ({5})",
-                    lpPattern, rpPattern, opPattern, varPattern, doublePattern, spacePattern);
+            lpPattern, rpPattern, opPattern, varPattern, doublePattern, spacePattern);
 
             // Enumerate matching tokens that don't consist solely of white space.
             foreach (String s in Regex.Split(formula, pattern, RegexOptions.IgnorePatternWhitespace))
@@ -325,6 +481,35 @@ namespace SpreadsheetUtilities
             }
             else
                 return false;
+        }
+
+        /// <summary>
+        /// This simple compute method will calculate the value of two integers
+        /// with a given operation. Attempts to divide by 0 throws an exception
+        /// </summary>
+        /// <param name="leftNum">Integer that is placed left of the operand</param>
+        /// <param name="rightNum">Integer that is placed right of the operand</param>
+        /// <param name="operation">The operation to be done on the two values</param>
+        /// <returns> resultant of the operation done on the left and right 
+        /// integers </returns>
+        /// <exception cref="ArgumentException"> exception thrown if operand
+        /// is unrecognized, should not be thrown</exception>
+        private static double Compute(double leftNum, double rightNum, string operation)
+        {
+            if (operation == "*")
+                return leftNum * rightNum;
+
+            if (operation == "/")
+                return leftNum / rightNum;
+
+            if (operation == "+")
+                return leftNum + rightNum;
+
+            if (operation == "-")
+                return leftNum - rightNum;
+
+            // Should never happen
+            throw new ArgumentException();
         }
     }
 
