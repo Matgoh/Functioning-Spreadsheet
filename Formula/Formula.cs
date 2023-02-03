@@ -46,8 +46,9 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class Formula
     {
+        // Create fields for the list of tokens and set of normalized values
         private List<String> tokens;
-        private List<String> normalized;
+        private HashSet<String> normalized;
 
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -90,7 +91,7 @@ namespace SpreadsheetUtilities
             tokens = new List<string>(GetTokens(formula));
 
             // Create list to store normalized values
-            normalized = new List<string>();
+            normalized = new HashSet<string>();
 
             // If the first item is an operator or closing parenthesis, throw an exception 
             if (tokens[0] == "+" || tokens[0] == "-" || tokens[0] == "*" || tokens[0] == "/" || tokens[0] == ")")
@@ -202,10 +203,10 @@ namespace SpreadsheetUtilities
                         normalized.Add(tokens[i]);
                     }
                 }
-                if (openPar != closePar)
-                {
-                    throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
-                }
+            }
+            if (openPar != closePar)
+            { 
+                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
             }
         }
 
@@ -378,7 +379,9 @@ namespace SpreadsheetUtilities
         /// </summary>
         public IEnumerable<String> GetVariables()
         {
-            return normalized;
+            // Create and return a copy of normalized 
+            HashSet<String> normalizedCopy = new HashSet<String>(normalized);
+            return normalizedCopy;
         }
 
         /// <summary>
@@ -393,7 +396,12 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override string ToString()
         {
-            return null;
+            string formulaString = "";
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                formulaString += tokens[i];
+            }
+            return formulaString;
         }
 
         /// <summary>
@@ -420,7 +428,29 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override bool Equals(object? obj)
         {
-            return false;
+            // If obj is null or not a formula, return false
+            if (obj == null || obj.GetType() != tokens.GetType()) 
+                return false;
+            
+            Formula formula = (Formula)obj;
+
+            for (int i = 0; i < tokens.Count; i++)  
+            {
+                // If the item is a number, compare with conversion from string to double, then back to string
+                if (double.TryParse(tokens[i], out double value))
+                {
+                    if (double.Parse(tokens[i]).ToString() != double.Parse(formula.tokens[i]).ToString())
+                    {
+                        return false;
+                    }
+                }
+                else 
+                    if (!(tokens[i].ToString().Equals(formula.tokens[i])))
+                    {
+                        return false;
+                    }                      
+            }
+            return true;
         }
 
         /// <summary>
@@ -430,7 +460,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            return false;
+            return f1.Equals(f2);
         }
 
         /// <summary>
@@ -440,7 +470,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator !=(Formula f1, Formula f2)
         {
-            return false;
+            return !(f1.Equals(f2));
         }
 
         /// <summary>
@@ -450,7 +480,8 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override int GetHashCode()
         {
-            return 0;
+            int hashCode = ToString().GetHashCode();
+            return hashCode;
         }
 
         /// <summary>
