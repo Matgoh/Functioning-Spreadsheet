@@ -38,7 +38,7 @@ namespace FormulaTests
         [TestMethod]
         public void TestLegalParenthesis()
         {
-            Formula f = new Formula("(13)-9 / (2) *5 +2");
+            Formula f = new Formula("((13)-9 / (2) *5 +2)");
             Assert.AreEqual((double)-7.5, f.Evaluate(x => 6));
         }
 
@@ -53,7 +53,7 @@ namespace FormulaTests
 
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException),
-        "Exception when operators as start of formula")]
+        "Exception with closing parenthesis at the end")]
         public void TestFormulaExceptionPar()
         {
             Formula f = new Formula("(5) * 3)");
@@ -81,6 +81,14 @@ namespace FormulaTests
         public void TestFormulaExceptionPar4()
         {
             Formula f = new Formula("5(12)");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(FormulaFormatException),
+ "Exception when operators as start of formula")]
+        public void TestFormulaExceptionNumbers()
+        {
+            Formula f = new Formula("5(*12)");
         }
     }
 }
