@@ -27,6 +27,20 @@ using System.Text.RegularExpressions;
 namespace SpreadsheetUtilities
 {
     /// <summary>
+    /// Author:    Matthew Goh
+    /// Partner:   None
+    /// Date:      3 Feb 2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Matthew Goh - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Matthew Goh, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    /// 
     /// Represents formulas written in standard infix notation using standard precedence
     /// rules.  The allowed symbols are non-negative numbers written using double-precision 
     /// floating-point syntax (without unary preceeding '-' or '+'); 
@@ -90,13 +104,21 @@ namespace SpreadsheetUtilities
             // Move all the contents of the input string to a list
             tokens = new List<string>(GetTokens(formula));
 
+            // if contents of the list are empty, immediately throw
+            if (tokens.Count == 0)
+            {
+                throw new FormulaFormatException("Formula can not be empty");
+            }
             // Create list to store normalized values
             normalized = new HashSet<string>();
 
-            // If the first item is an operator or closing parenthesis, throw an exception 
-            if (tokens[0] == "+" || tokens[0] == "-" || tokens[0] == "*" || tokens[0] == "/" || tokens[0] == ")")
+            // If the first item is an operator or closing parenthesis or the last item is an operator or
+            // opening parenthesis, throw an exception 
+            if (hasValidOp(tokens[0]) || tokens[0] == ")" || hasValidOp(tokens[tokens.Count - 1]) 
+                || tokens[tokens.Count - 1] == "(")
             {
-                throw new FormulaFormatException("Formula can not begin with an operator or closing parenthesis");
+                throw new FormulaFormatException("Formula can not begin with an operator or closing parenthesis or end with " +
+                                                 "an operator and opening parenthesis");
             }
 
             // Create string regex for valid variable input: a letter or underscore followed by zero or more letters,
@@ -120,7 +142,7 @@ namespace SpreadsheetUtilities
                     if (i != 0)
                     {
                         // If the previous token is a number or a variable
-                        if (double.TryParse(tokens[prevToken], out double result) || varPattern.IsMatch(tokens[prevToken]))
+                        if (double.TryParse(tokens[prevToken], out _) || varPattern.IsMatch(tokens[prevToken]))
                         {
                             throw new FormulaFormatException("There must be operations between values/variables and parenthesis ");
                         }
@@ -146,13 +168,13 @@ namespace SpreadsheetUtilities
                 }
 
                 // If token is a valid number
-                if (double.TryParse(tokens[i], out double number))
+                if (double.TryParse(tokens[i], out _))
                 {
                     // If this is not the first iteration, then check if previous will throw
                     if (i != 0)
                     {
                         // If the previous value is anything other than an operand or opening parenthesis, then throw exception
-                        if (double.TryParse(tokens[prevToken], out double result)
+                        if (double.TryParse(tokens[prevToken], out _)
                             || tokens[prevToken] == ")" || varPattern.IsMatch(tokens[prevToken]))
                         {
                             throw new FormulaFormatException("numbers must have operators or open parenthesis preceding");
@@ -162,13 +184,13 @@ namespace SpreadsheetUtilities
                 }
 
                 // If token is a valid operator
-                if (validOp(tokens[i]))
+                if (hasValidOp(tokens[i]))
                 {
                     // If this is not the first iteration, then check if previous will throw
                     if (i != 0)
                     {
                         // If previous token is an operator or opening parenthesis, throw
-                        if (validOp(tokens[prevToken]) || tokens[prevToken] == "(")
+                        if (hasValidOp(tokens[prevToken]) || tokens[prevToken] == "(")
                         {
                             throw new FormulaFormatException("Formula can not have operators sequentially or open parenthesis preceding");
                         }
@@ -176,8 +198,8 @@ namespace SpreadsheetUtilities
                     prevToken = i;
                 }
 
-                // if the token is a valid variable input
-                if (varPattern.IsMatch(tokens[i]))
+                // if the token is a valid variable input and it is not a valid number
+                if (varPattern.IsMatch(tokens[i]) && !double.TryParse(tokens[i], out _))
                 {
                     // If the normalized token does not match the pattern, throw
                     if (!varPattern.IsMatch(normalize(tokens[i])))
@@ -191,17 +213,20 @@ namespace SpreadsheetUtilities
                         throw new FormulaFormatException("normalized variable does not comply with validator");
                     }
 
+                    // Set the token to the normalized token 
+                    tokens[i] = normalize(tokens[i]);
+
                     // If this is not the first iteration, then check if previous will throw
                     if (i != 0)
                     {
                         // If the previous value is anything other than an operand or opening parenthesis, then throw exception
-                        if (double.TryParse(tokens[prevToken], out double result)
-                            || tokens[prevToken] == ")" || varPattern.IsMatch(tokens[prevToken]))
+                        if (double.TryParse(tokens[prevToken], out _) || tokens[prevToken] == ")" || varPattern.IsMatch(tokens[prevToken]))
                         {
                             throw new FormulaFormatException("Variables must have operators or open parenthesis preceding");
                         }
-                        normalized.Add(tokens[i]);
                     }
+                    normalized.Add(tokens[i]);
+                    prevToken = i; ;
                 }
             }
             if (openPar != closePar)
@@ -243,11 +268,16 @@ namespace SpreadsheetUtilities
 
             for (int i = 0; i < tokens.Count; i++)
             {
-                // If the value is an double... 
+                // If the value is a double... 
                 if (double.TryParse(tokens[i], out double value))
                 {
                     if (operatorStack.Count > 0 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/") && valueStack.Count > 0)
                     {
+                        // Catch division by 0
+                        if (operatorStack.Peek() == "/" && value == 0)
+                        {
+                            return new FormulaError("can not divide by 0");
+                        }
                         valueStack.Push(Compute(valueStack.Pop(), value, operatorStack.Pop()));
                     }
                     else
@@ -259,10 +289,27 @@ namespace SpreadsheetUtilities
                 // If t is a variable...
                 if (var.IsMatch(tokens[i]))
                 {
+                    // if variable is not a double, throw
+                    double verifyDouble;
+                    try
+                    {
+                        verifyDouble = lookup(tokens[i]);
+                    }
+                    catch(ArgumentException) 
+                    { 
+                        return new FormulaError("variable does not compute to valid number");
+                    }
+
                     // When operator stack contains "*" or "/" and the value stack is not empty, compute value on stack, variable, and
                     // operator and push to value stack
                     if (operatorStack.Count > 0 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/") && valueStack.Count > 0)
                     {
+                        // Catch division by 0
+                        if (operatorStack.Peek() == "/" && lookup(tokens[i]) == 0)
+                        {
+                            return new FormulaError("can not divide by 0");
+                        }
+
                         valueStack.Push(Compute(valueStack.Pop(), lookup(tokens[i]), operatorStack.Pop()));
                     }
 
@@ -278,16 +325,8 @@ namespace SpreadsheetUtilities
                     // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
                     if (operatorStack.Count > 0 && valueStack.Count >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
                     {
-                        double secondVal = valueStack.Pop();
-
-                        if (operatorStack.Peek() == "/" && secondVal == 0)
-                        {
-                            return new FormulaError("can not divide by 0");
-                        }
-                        else
-                        {
-                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
-                        }
+                        double secondVal = valueStack.Pop();                                               
+                        valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));                       
                     }
                     operatorStack.Push(tokens[i]);
                 }
@@ -304,23 +343,14 @@ namespace SpreadsheetUtilities
                     // If operator stacks contain "+" or "-" and value stack is 2 or greater, pop operand and both values and push compute 
                     if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
                     {
-                        double secondVal = valueStack.Pop();
-
-                        // Catch divide by 0 error
-                        if (operatorStack.Peek() == "/" && secondVal == 0)
-                        {
-                            return new FormulaError("can not divide by 0");
-                        }
-                        else
-                        {
-                            valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));
-                        }
+                        double secondVal = valueStack.Pop();                                                                      
+                        valueStack.Push(Compute(valueStack.Pop(), secondVal, operatorStack.Pop()));                        
                     }
 
                     if (operatorStack.Count() > 0 && operatorStack.Peek() == "(")
                         operatorStack.Pop();
                     else
-                        throw new ArgumentException();
+                        return new FormulaError("Operator stack must be greater than 1 and have a closing parenthesis");
 
                     // Same conditions as above with different operators
                     if (operatorStack.Count() > 0 && valueStack.Count() >= 2 && (operatorStack.Peek() == "*" || operatorStack.Peek() == "/"))
@@ -429,7 +459,7 @@ namespace SpreadsheetUtilities
         public override bool Equals(object? obj)
         {
             // If obj is null or not a formula, return false
-            if (obj == null || obj.GetType() != tokens.GetType()) 
+            if (object.Equals(obj, null) || obj.GetType() != this.GetType()) 
                 return false;
             
             Formula formula = (Formula)obj;
@@ -460,7 +490,12 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            return f1.Equals(f2);
+            if (f1.Equals(f2))
+            {
+                return true;
+            }
+            else
+                return false;
         }
 
         /// <summary>
@@ -470,7 +505,10 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator !=(Formula f1, Formula f2)
         {
-            return !(f1.Equals(f2));
+            if (!(f1.Equals(f2)))
+                return true;
+            else
+                return false;
         }
 
         /// <summary>
@@ -515,17 +553,13 @@ namespace SpreadsheetUtilities
 
         }
 
-        private bool validOpAndPar(String token)
-        {
-            if (token == "+" || token == "-" || token == "*" || token == "/" || token == ")" || token == "(")
-            {
-                return true;
-            }
-            else
-                return false;
-        }
-
-        private bool validOp(String token)
+        
+        /// <summary>
+        /// Small helper method the returns true if the token is a valid operator
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>boolean</returns>
+        private bool hasValidOp(String token)
         {
             if (token == "+" || token == "-" || token == "*" || token == "/")
             {
@@ -561,7 +595,7 @@ namespace SpreadsheetUtilities
                 return leftNum - rightNum;
 
             // Should never happen
-            throw new ArgumentException();
+            return 0;
         }
     }
 
@@ -600,16 +634,3 @@ namespace SpreadsheetUtilities
         public string Reason { get; private set; }
     }
 }
-
-
-// <change>
-//   If you are using Extension methods to deal with common stack operations (e.g., checking for
-//   an empty stack before peeking) you will find that the Non-Nullable checking is "biting" you.
-//
-//   To fix this, you have to use a little special syntax like the following:
-//
-//       public static bool OnTop<T>(this Stack<T> stack, T element1, T element2) where T : notnull
-//
-//   Notice that the "where T : notnull" tells the compiler that the Stack can contain any object
-//   as long as it doesn't allow nulls!
-// </change>
