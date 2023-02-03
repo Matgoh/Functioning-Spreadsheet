@@ -18,7 +18,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyGraphTests", "Dep
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PS1GradingTests", "PS1GradingTests\PS1GradingTests.csproj", "{DACB735A-9A1E-46FF-91C2-D942FA8DF2AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PS2GradingTests", "PS2GradingTests\PS2GradingTests.csproj", "{0AB53BC3-7EAC-46F9-9930-1314CF0F8364}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PS2GradingTests", "PS2GradingTests\PS2GradingTests.csproj", "{0AB53BC3-7EAC-46F9-9930-1314CF0F8364}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Formula", "Formula\Formula.csproj", "{CD7A2432-BC6B-45A2-8CEC-D67B19E49C19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormulaTests", "FormulaTests\FormulaTests.csproj", "{1088A1EC-7667-459C-9B36-E82FB42AB9B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +54,14 @@ Global
 		{0AB53BC3-7EAC-46F9-9930-1314CF0F8364}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AB53BC3-7EAC-46F9-9930-1314CF0F8364}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AB53BC3-7EAC-46F9-9930-1314CF0F8364}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD7A2432-BC6B-45A2-8CEC-D67B19E49C19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD7A2432-BC6B-45A2-8CEC-D67B19E49C19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD7A2432-BC6B-45A2-8CEC-D67B19E49C19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD7A2432-BC6B-45A2-8CEC-D67B19E49C19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1088A1EC-7667-459C-9B36-E82FB42AB9B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1088A1EC-7667-459C-9B36-E82FB42AB9B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1088A1EC-7667-459C-9B36-E82FB42AB9B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1088A1EC-7667-459C-9B36-E82FB42AB9B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
