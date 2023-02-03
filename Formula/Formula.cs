@@ -107,7 +107,7 @@ namespace SpreadsheetUtilities
             // if contents of the list are empty, immediately throw
             if (tokens.Count == 0)
             {
-                throw new FormulaFormatException("Formula can not be empty");
+                throw new FormulaFormatException("Formula can not be empty. Try adding elements.");
             }
             // Create list to store normalized values
             normalized = new HashSet<string>();
@@ -229,9 +229,11 @@ namespace SpreadsheetUtilities
                     prevToken = i; ;
                 }
             }
+
+            // Number of open parentheses must equal the number of closed ones
             if (openPar != closePar)
             { 
-                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
+                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis.");
             }
         }
 
@@ -490,12 +492,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator ==(Formula f1, Formula f2)
         {
-            if (f1.Equals(f2))
-            {
-                return true;
-            }
-            else
-                return false;
+            return (f1.Equals(f2));         
         }
 
         /// <summary>
@@ -505,10 +502,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public static bool operator !=(Formula f1, Formula f2)
         {
-            if (!(f1.Equals(f2)))
-                return true;
-            else
-                return false;
+            return (!(f1.Equals(f2)));
         }
 
         /// <summary>
@@ -555,7 +549,7 @@ namespace SpreadsheetUtilities
 
         
         /// <summary>
-        /// Small helper method the returns true if the token is a valid operator
+        /// Small helper method that returns true if the token is a valid operator
         /// </summary>
         /// <param name="token"></param>
         /// <returns>boolean</returns>
@@ -595,7 +589,7 @@ namespace SpreadsheetUtilities
                 return leftNum - rightNum;
 
             // Should never happen
-            return 0;
+            throw new ArgumentException();
         }
     }
 
