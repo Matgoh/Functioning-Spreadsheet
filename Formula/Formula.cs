@@ -115,6 +115,15 @@ namespace SpreadsheetUtilities
                 // If token is a open parenthesis
                 if (tokens[i] == "(")
                 {
+                    // If this is not the first iteration, then check if previous will throw
+                    if (i != 0)
+                    {
+                        // If the previous token is a number or a variable
+                        if (double.TryParse(tokens[prevToken], out double result) || varPattern.IsMatch(tokens[prevToken]))
+                        {
+                            throw new FormulaFormatException("There must be operations between values/variables and parenthesis ");
+                        }
+                    }
                     openPar++;
                     prevToken = i;
                 }
@@ -141,10 +150,11 @@ namespace SpreadsheetUtilities
                     // If this is not the first iteration, then check if previous will throw
                     if (i != 0)
                     {
-                        // If the previous value is a number, then throw exception
-                        if (double.TryParse(tokens[prevToken], out double result))
+                        // If the previous value is anything other than an operand or opening parenthesis, then throw exception
+                        if (double.TryParse(tokens[prevToken], out double result)
+                            || tokens[prevToken] == ")" || varPattern.IsMatch(tokens[prevToken]))
                         {
-                            throw new FormulaFormatException("Formula can not have two numbers sequentially");
+                            throw new FormulaFormatException("numbers must have operators or open parenthesis preceding");
                         }
                     }
                     prevToken = i;
@@ -156,10 +166,10 @@ namespace SpreadsheetUtilities
                     // If this is not the first iteration, then check if previous will throw
                     if (i != 0)
                     {
-                        // If previous token is an operator, throw
-                        if (validOp(tokens[prevToken]))
+                        // If previous token is an operator or opening parenthesis, throw
+                        if (validOp(tokens[prevToken]) || tokens[prevToken] == "(")
                         {
-                            throw new FormulaFormatException("Formula can not have two operators sequentially");
+                            throw new FormulaFormatException("Formula can not have operators sequentially or open parenthesis preceding");
                         }
                     }
                     prevToken = i;
@@ -179,12 +189,23 @@ namespace SpreadsheetUtilities
                     {
                         throw new FormulaFormatException("normalized variable does not comply with validator");
                     }
-                    normalized.Add(tokens[i]); 
-                }             
-            }
-            if (openPar != closePar)
-            {
-                throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
+
+                    // If this is not the first iteration, then check if previous will throw
+                    if (i != 0)
+                    {
+                        // If the previous value is anything other than an operand or opening parenthesis, then throw exception
+                        if (double.TryParse(tokens[prevToken], out double result)
+                            || tokens[prevToken] == ")" || varPattern.IsMatch(tokens[prevToken]))
+                        {
+                            throw new FormulaFormatException("Variables must have operators or open parenthesis preceding");
+                        }
+                        normalized.Add(tokens[i]);
+                    }
+                }
+                if (openPar != closePar)
+                {
+                    throw new FormulaFormatException("Each opening parenthesis must contain a closing one. Check if you are missing a parenthesis");
+                }
             }
         }
 
