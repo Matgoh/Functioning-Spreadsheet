@@ -56,8 +56,8 @@ namespace SpreadsheetUtilities
     public class DependencyGraph
     {
         // Two dictionary fields and int variable to store dependents, dependees, and the amount of ordered pairs.
-        Dictionary<String, HashSet<String>> dependents;
-        Dictionary<String, HashSet<String>> dependees;
+        private Dictionary<String, HashSet<String>> dependents;
+        private Dictionary<String, HashSet<String>> dependees;
         int numOfPairs;
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependents(string s)
         {
-            if (dependents.ContainsKey(s))
+            if (dependees.ContainsKey(s))
             {
                 return true;
             }
@@ -121,7 +121,7 @@ namespace SpreadsheetUtilities
         /// </summary>
         public bool HasDependees(string s)
         {
-            if (dependees.ContainsKey(s)) 
+            if (dependents.ContainsKey(s)) 
             { 
                 return true; 
             }
