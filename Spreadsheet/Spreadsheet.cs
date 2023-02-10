@@ -1,5 +1,4 @@
 ﻿using SpreadsheetUtilities;
-using SS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,28 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace Spreadsheet 
+namespace SS
 {
-    internal class Spreadsheet : AbstractSpreadsheet
+    /// <summary>
+    /// Author:    Matthew Goh
+    /// Partner:   None
+    /// Date:      10 Feb 2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Matthew Goh - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Matthew Goh, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    /// 
+    /// Represents a spreadsheet class that has cells as its components. This class supports setting
+    /// cell content, as a double, string, or formula, and accessing specified cells. The class throws
+    /// a series of exceptions if the input does not support the criteria or results in a circular loop. 
+    /// </summary>
+    public class Spreadsheet : AbstractSpreadsheet
     {
         /// <summary>
         /// Class to create a cell object
@@ -32,14 +50,14 @@ namespace Spreadsheet
            /// Constructor to set the name and contents of a cell.
            /// </summary>
            /// <param name="name"></param>
-           /// <param name="value"></param>
+           /// <param name="contents"></param>
            public Cell(string name, object contents) 
            { 
                 Name = name;
                 Contents = contents;
            }
         }
-        // Create field to store the names and a cell object
+        // Create field to store the names and cell object
         private Dictionary<String, Cell> cellSheet;
 
         // Create field for dependency data 
@@ -71,11 +89,16 @@ namespace Spreadsheet
         public override object GetCellContents(string name)
         {
             // Throw if the name is null or invalid
-            if (object.Equals(name, null) || !validName(name) || !cellSheet.ContainsKey(name))
+            if (object.Equals(name, null) || !validName(name))
             {
                 throw new InvalidNameException();
             }
-            return cellSheet[name].Contents;
+            if (cellSheet.ContainsKey(name))
+            {
+                return cellSheet[name].Contents;
+            }
+            else
+                return "";
         }
 
 
@@ -113,11 +136,12 @@ namespace Spreadsheet
         ///   </para>
         /// </returns>
         public override ISet<string> SetCellContents(string name, double number)
-        {
+        {            
             if (object.Equals(name, null) || !validName(name))
             {
                 throw new InvalidNameException();
             }
+
             if (cellSheet.ContainsKey(name))
             {
                 cellSheet[name].Contents = number;
@@ -125,10 +149,11 @@ namespace Spreadsheet
             else 
                 cellSheet.Add(name, new Cell(name, number));
 
+            graph.ReplaceDependees(name, new HashSet<String>());
             // All dependents would be the cells that need to recalculate after changing "name."
-            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
+            HashSet<string> nameAndDependees = new HashSet<string>(GetCellsToRecalculate(name));
 
-            return nameAndDependents;
+            return nameAndDependees;
         }
 
 
@@ -158,15 +183,24 @@ namespace Spreadsheet
         ///   </para>
         /// </returns>
         public override ISet<string> SetCellContents(string name, string text)
-        {
-            if (string.Equals(name, null) || !validName(name))
+        {           
+            if (object.Equals(name, null) || (!validName(name)))
             {
                 throw new InvalidNameException();
             }
 
-            if (string.Equals(text, null))
+            if (object.Equals(text, null))
             {
                 throw new ArgumentNullException();
+            }
+
+            graph.ReplaceDependees(name, new HashSet<String>());
+            // All dependents would be the cells that need to recalculate after changing "name."
+            HashSet<string> nameAndDependees = new HashSet<string>(GetCellsToRecalculate(name));
+            // Do not add a cell if the content is empty
+            if (text == "")
+            {
+                return nameAndDependees;
             }
 
             if (cellSheet.ContainsKey(name))
@@ -176,10 +210,7 @@ namespace Spreadsheet
             else
                 cellSheet.Add(name, new Cell(name, text));
 
-            // All dependents would be the cells that need to recalculate after changing "name."
-            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
-
-            return nameAndDependents;
+            return nameAndDependees;
         }
 
 
@@ -227,24 +258,27 @@ namespace Spreadsheet
                 throw new ArgumentNullException();
             }
 
-            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
-            foreach (string depName in nameAndDependents)
-            {
-                if (formula.GetVariables().Contains(cellSheet[depName].Contents))
-                {
-                    throw new CircularException();
-                }
+            // Create a list to store dependees before replacement
+            IEnumerable<String> oldDependees = graph.GetDependees(name);
+            graph.ReplaceDependees(name, formula.GetVariables());
+
+            try 
+            {               
+                HashSet<String> nameAndDependees = new HashSet<String>(GetCellsToRecalculate(name));
+                
+                if (cellSheet.ContainsKey(name))    
+                    cellSheet[name].Contents = formula;         
+                else
+                    cellSheet.Add(name, new Cell(name, formula));      
+
+                return nameAndDependees;
             }
-
-            if (cellSheet.ContainsKey(name))
+            catch (CircularException)
             {
-                cellSheet[name].Contents = formula;
+                // If exception is caught, make sure old dependees still exist in graph
+                graph.ReplaceDependees(name, oldDependees);
+                throw new CircularException();
             }
-            else
-                cellSheet.Add(name, new Cell(name, formula));
-
-            return nameAndDependents;
-
         }
 
 
@@ -279,16 +313,6 @@ namespace Spreadsheet
         /// </returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (!validName(name))
-            {
-                throw new InvalidNameException();
-            }
-
-            if (string.Equals(name, null))
-            {
-                throw new ArgumentNullException();
-            }
-
             return graph.GetDependents(name);
         }
 
@@ -296,7 +320,7 @@ namespace Spreadsheet
         /// Small helper method to determine if a cell name is valid
         /// </summary>
         /// <param name="name"></param>
-        /// <returns> valid of not </returns>
+        /// <returns> boolean of valid or not </returns>
         private bool validName (string name)
         {
             string strRegex = @"^[a-zA-Z_](?: [a-zA-Z_]|\d)*$";

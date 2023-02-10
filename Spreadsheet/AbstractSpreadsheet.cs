@@ -316,10 +316,14 @@ namespace SS
 
 
         /// <summary>
-        /// A helper for the GetCellsToRecalculate method.
-        /// 
-        ///   -- You should fully comment what is going on below using XML tags as appropriate --
+        /// This recursive method helps to determine circularity by comparing each string in the original
+        /// names' parameter with the direct dependents
         /// </summary>
+        /// <param name="start"> The string being recalculated</param>
+        /// <param name="name"> direct dependent</param>
+        /// <param name="visited"> Marked in recursion</param>
+        /// <param name="changed"> dependent value</param>
+        /// <exception cref="CircularException"></exception>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
             visited.Add(name);
