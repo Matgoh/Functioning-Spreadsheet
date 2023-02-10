@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Spreadsheet 
@@ -15,28 +16,32 @@ namespace Spreadsheet
         /// </summary>
         private class Cell
         {
-           public string Name { get; set; }
+            /// <summary>
+            /// name of cell. Its first character is an underscore or a letter</item>
+            /// its remaining characters (if any) are underscores and/or letters and/or digits
+            /// </summary>
+            public string Name { get; set; }
             
            /// <summary>
-           /// Value can either be a string, double, or a formula. 
+           /// Contents can either be a string, double, or a formula. 
            /// </summary>
-           public object Value { get; set; }
+           public object Contents { get; set; }
 
            /// <summary>
-           /// Constructor to set the name and value of a cell.
+           /// Constructor to set the name and contents of a cell.
            /// </summary>
            /// <param name="name"></param>
            /// <param name="value"></param>
-           public Cell(string name, object value) 
+           public Cell(string name, object contents) 
            { 
                 Name = name;
-                Value = value;
+                Contents = contents;
            }
         }
-        // Create field to store all the contents of a cell
+        // Create field to store the names and a cell object
         private Dictionary<String, Cell> cellSheet;
 
-        // Create field for dependency graph
+        // Create field for dependency data 
         private DependencyGraph graph;
 
         /// <summary>
@@ -64,7 +69,12 @@ namespace Spreadsheet
         /// </returns>
         public override object GetCellContents(string name)
         {
-            throw new NotImplementedException();
+            // Throw if the name is null or invalid
+            if (object.Equals(name, null) || !validName(name) || !cellSheet.ContainsKey(name))
+            {
+                throw new InvalidNameException();
+            }
+            return cellSheet[name].Contents;
         }
 
 
@@ -74,7 +84,8 @@ namespace Spreadsheet
         /// </summary>
         public override IEnumerable<string> GetNamesOfAllNonemptyCells()
         {
-            throw new NotImplementedException();
+            // Any empty cells should be removed from cellsheet.
+            return cellSheet.Keys;
         }
 
 
@@ -102,7 +113,21 @@ namespace Spreadsheet
         /// </returns>
         public override ISet<string> SetCellContents(string name, double number)
         {
-            throw new NotImplementedException();
+            if (object.Equals(name, null) || !validName(name))
+            {
+                throw new InvalidNameException();
+            }
+            if (cellSheet.ContainsKey(name))
+            {
+                cellSheet[name].Contents = number;
+            }
+            else 
+                cellSheet.Add(name, new Cell(name, number));
+
+            // All dependents would be the cells that need to recalculate after changing "name."
+            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
+
+            return nameAndDependents;
         }
 
 
@@ -133,7 +158,27 @@ namespace Spreadsheet
         /// </returns>
         public override ISet<string> SetCellContents(string name, string text)
         {
-            throw new NotImplementedException();
+            if (string.Equals(name, null) || !validName(name))
+            {
+                throw new InvalidNameException();
+            }
+
+            if (string.Equals(text, null))
+            {
+                throw new ArgumentNullException();
+            }
+
+            if (cellSheet.ContainsKey(name))
+            {
+                cellSheet[name].Contents = text;
+            }
+            else
+                cellSheet.Add(name, new Cell(name, text));
+
+            // All dependents would be the cells that need to recalculate after changing "name."
+            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
+
+            return nameAndDependents;
         }
 
 
@@ -207,6 +252,24 @@ namespace Spreadsheet
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Small helper method to determine if a cell name is valid
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns> valid of not </returns>
+        private bool validName (string name)
+        {
+            string strRegex = @"^[a-zA-Z_](?: [a-zA-Z_]|\d)*$";
+            Regex regexPattern = new Regex(strRegex);
+
+            if (regexPattern.IsMatch(name))
+            {
+                return true;
+            }
+            else
+                return false;
         }
     }
 }
