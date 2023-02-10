@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Spreadsheet 
 {
@@ -216,7 +217,34 @@ namespace Spreadsheet
         /// </returns>
         public override ISet<string> SetCellContents(string name, Formula formula)
         {
-            throw new NotImplementedException();
+            if (string.Equals(name, null) || !validName(name))
+            {
+                throw new InvalidNameException();
+            }
+
+            if (object.Equals(formula, null))
+            {
+                throw new ArgumentNullException();
+            }
+
+            HashSet<string> nameAndDependents = new HashSet<string>(GetCellsToRecalculate(name));
+            foreach (string depName in nameAndDependents)
+            {
+                if (formula.GetVariables().Contains(cellSheet[depName].Contents))
+                {
+                    throw new CircularException();
+                }
+            }
+
+            if (cellSheet.ContainsKey(name))
+            {
+                cellSheet[name].Contents = formula;
+            }
+            else
+                cellSheet.Add(name, new Cell(name, formula));
+
+            return nameAndDependents;
+
         }
 
 
@@ -251,7 +279,17 @@ namespace Spreadsheet
         /// </returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            throw new NotImplementedException();
+            if (!validName(name))
+            {
+                throw new InvalidNameException();
+            }
+
+            if (string.Equals(name, null))
+            {
+                throw new ArgumentNullException();
+            }
+
+            return graph.GetDependents(name);
         }
 
         /// <summary>
