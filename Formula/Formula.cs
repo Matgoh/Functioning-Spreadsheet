@@ -431,6 +431,11 @@ namespace SpreadsheetUtilities
             string formulaString = "";
             for (int i = 0; i < tokens.Count; i++)
             {
+                if (double.TryParse(tokens[i], out double value))
+                {
+                    tokens[i] = double.Parse(tokens[i]).ToString();
+                }
+
                 formulaString += tokens[i];
             }
             return formulaString;

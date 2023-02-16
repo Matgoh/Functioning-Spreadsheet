@@ -58,7 +58,7 @@ namespace SpreadsheetUtilities
         // Two dictionary fields and int variable to store dependents, dependees, and the amount of ordered pairs.
         private Dictionary<String, HashSet<String>> dependents;
         private Dictionary<String, HashSet<String>> dependees;
-        int numOfPairs;
+        private int numOfPairs;
 
         /// <summary>
         /// Creates an empty DependencyGraph.

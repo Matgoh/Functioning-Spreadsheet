@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaEvaluatorTester", "F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9AF4CBF9-E5FA-43E1-866E-52274F1CDB39}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\Downloads\AbstractSpreadsheet AS5.cs = ..\..\..\..\Downloads\AbstractSpreadsheet AS5.cs
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -22,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaTests", "FormulaTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{4389D221-0A9D-49CF-BDFE-3CCBE4E8389F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{F5EBB3A2-F96A-477B-A3B7-22FFFB928E8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{F5EBB3A2-F96A-477B-A3B7-22FFFB928E8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
