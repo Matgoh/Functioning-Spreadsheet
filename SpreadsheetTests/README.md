@@ -3,7 +3,7 @@ Partner:    None
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  Matgoh
 Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-Matgoh
-Date:       10-February-2023 6:20 AM
+Date:       20-February-2023 9:45 AM
 Project:    SpreadSheet Class
 Copyright:  CS 3500 and Matthew Goh - This work may not be copied for use in Academic Coursework.
 
@@ -14,7 +14,7 @@ My works stands on its own.
 N/A
 
 # Consulted Peers:
-Sam, Alex Qi, Riley Crahen
+Jacque, Alex Qi, Tobey Mache
 
 # References:
 	1. Use code coverage to determine how much code is being tested - https://learn.microsoft.com/en-us/visualstudio/test/using-code-coverage-to-determine-how-much-code-is-being-tested?view=vs-2022&tabs=csharp
