@@ -1,13 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="GUI.MainPage">
-    
+
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
-            <MenuFlyoutItem Text="New" Clicked="FileMenuNew" />
-            <MenuFlyoutItem Text="Open" Clicked="FileMenuOpenAsync" />
-            <MenuFlyoutItem Text="Save" Clicked="OnSaveFile" />
+            <MenuFlyoutItem Text="New" x:Name ="NewButton" 
+                            Clicked="FileMenuNew" />
+            <MenuFlyoutItem Text="Open" x:Name ="OpenButton" 
+                            Clicked="FileMenuOpenAsync" />
+            <MenuFlyoutItem Text="Save" x:Name ="SaveButton" 
+                            Clicked="OnSaveFile" />
         </MenuBarItem>
     </ContentPage.MenuBarItems>
 
@@ -24,9 +28,10 @@
 
         <!-- the column headers: A, B, C, ... -->
         <HorizontalStackLayout x:Name="TopLabels" BackgroundColor="LightBlue"/>
-
+       
+        
         <!-- the Grid of Spreadsheet GUI Cells -->
-        <ScrollView
+        <ScrollView 
                     x:Name="Table"
                     Orientation="Both"
                     HorizontalOptions="FillAndExpand"
@@ -34,7 +39,8 @@
                     HeightRequest="500">
             <HorizontalStackLayout>
                 <VerticalStackLayout x:Name="LeftLabels"  BackgroundColor="LightBlue"></VerticalStackLayout>
-                <VerticalStackLayout x:Name="Grid"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
+                <VerticalStackLayout x:Name="GridV"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
+                <HorizontalStackLayout x:Name="GridH"      BackgroundColor="LightGoldenrodYellow"></HorizontalStackLayout>
             </HorizontalStackLayout>
         </ScrollView>
     </VerticalStackLayout>
