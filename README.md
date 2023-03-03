@@ -1,12 +1,12 @@
 Author:     Matthew Goh
 Partner:    Alex Qi
-Start Date: 17-Feb-2023
+Start Date: 1-March-2023
 Course:     CS 3500, University of Utah, School of Computing
-GitHub ID:  Matgoh
-Repo:       https://github.com/uofu-cs3500-spring23/spreadsheet-Matgoh
-Commit Date: 20-February-2023 9:45 AM
+GitHub ID:  Matgoh, Qibola
+Repo:       https://github.com/uofu-cs3500-spring23/assignment-six---gui---functioning-spreadsheet-codingbaddies.git
+Commit Date: 3-March-2023 
 Solution:   Spreadsheet
-Copyright:  CS 3500 and Matthew Goh - This work may not be copied for use in Academic Coursework.
+Copyright:  CS 3500, Matthew Goh and Alex Qi - This work may not be copied for use in Academic Coursework.
 ```
 
 # Overview of the Spreadsheet functionality
@@ -26,3 +26,4 @@ extensions are creating the GUI interface for our spreadsheet project.
     3. Assignment Three: Predicted Hours:          16        Actual Hours:   20 (Formulating code - 9, Debugging/Testing/formatting - 8, figuring out assignment - 3)
     4. Assignment Four:  Predicted Hours:          15        Actual Hours:   16 (Formulating code - 7, Debugging/Testing/formatting - 4, figuring out assignment - 5)
     5. Assignment Five:  Predicted Hours:          17        Actual Hours:   21 (Formulating code - 10, Debugging/Testing/formatting - 7, figuring out assignment - 4)
+    6. Assignment Six:   Predicted Hours:          20        Actual Hours:   TBD
