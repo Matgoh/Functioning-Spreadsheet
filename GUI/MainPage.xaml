@@ -16,31 +16,58 @@
             Padding="30,0"
             VerticalOptions="Center">
 
-            <Image
-                Source="dotnet_bot.png"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="200"
-                HorizontalOptions="Center" />
 
             <Label
-                Text="Hello, World!"
+                Text="CS 3500 Example - Events - Focus - Adding Via Code!"
                 SemanticProperties.HeadingLevel="Level1"
                 FontSize="32"
                 HorizontalOptions="Center" />
 
             <Label
+                x:Name="Message"
                 Text="Welcome to .NET Multi-platform App UI"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Welcome to dot net Multi platform App U I"
                 FontSize="18"
                 HorizontalOptions="Center" />
 
+            <VerticalStackLayout
+                x:Name="EntryList"
+                HorizontalOptions="Center"/>
+
             <Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
+                x:Name="ClearButton"
+                Text="Clear"
+                HorizontalOptions="Center"
+                Clicked="ClearButtonClicked"/>
+
+            <VerticalStackLayout x:Name="Entire">
+
+                <!-- A Place to put the currently selected cell "named" and "value" -->
+                <Border
+            StrokeThickness="2"
+            HeightRequest="40">
+                    <HorizontalStackLayout>
+                        <Label x:Name="selectedCell" Text="Stuff could go here" WidthRequest="100"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- the column headers: A, B, C, ... -->
+                <HorizontalStackLayout x:Name="TopLabels" BackgroundColor="LightBlue"/>
+
+                <!-- the Grid of Spreadsheet GUI Cells -->
+                <ScrollView
+                    x:Name="Table"
+                    Orientation="Both"
+                    HorizontalOptions="FillAndExpand"
+                    HorizontalScrollBarVisibility="Always"
+                    HeightRequest="500">
+                    <HorizontalStackLayout>
+                        <VerticalStackLayout x:Name="LeftLabels"  BackgroundColor="LightBlue"></VerticalStackLayout>
+                        <VerticalStackLayout x:Name="Grid"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>
