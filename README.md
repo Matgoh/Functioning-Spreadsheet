@@ -1,5 +1,5 @@
 Author:     Matthew Goh
-Partner:    None
+Partner:    Alex Qi
 Start Date: 17-Feb-2023
 Course:     CS 3500, University of Utah, School of Computing
 GitHub ID:  Matgoh
