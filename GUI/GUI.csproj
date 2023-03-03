@@ -48,4 +48,14 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="DocumentFormat.OpenXml" Version="2.19.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DependencyGraph\DependencyGraph.csproj" />
+	  <ProjectReference Include="..\Formula\Formula.csproj" />
+	  <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj" />
+	</ItemGroup>
+
 </Project>
