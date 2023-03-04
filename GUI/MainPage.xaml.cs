@@ -1,14 +1,17 @@
-﻿using SS;
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Presentation;
+using SS;
 
 namespace GUI
 {
     public partial class MainPage : ContentPage
     {
         private object label;
-
+        private Dictionary<string, object> Entries;
         public MainPage()
         {
             InitializeComponent();
+            Entries = new Dictionary<string, object>();
 
             // Fill top characters of spreadsheet
             Char c = 'A';
@@ -62,11 +65,18 @@ namespace GUI
            
             // Fills all the mid section of the grid
             label = null;
+            char col = 'A';
+            int row = 1;
+            Entry entry;
             for (int i = 0; i < 99; i++)
             {
                 HorizontalStackLayout horizontal = new HorizontalStackLayout();
                 for (int j = 0; j < 26; j++)
                 {
+                    if (j == 0)
+                    {
+                        row = 'A';
+                    }
                     horizontal.Add(
                     new Border
                     {
@@ -76,20 +86,35 @@ namespace GUI
                         WidthRequest = 75,
                         HorizontalOptions = LayoutOptions.Center,
                         Content =
-                             new Label
+                             entry = new Entry
                              {
                                  Text = $"{label}",
                                  BackgroundColor = Color.FromRgb(200, 200, 250),
                                  HorizontalTextAlignment = TextAlignment.Center
                              }
                     }
-                    );                    
+                    );
+                    string strCol = char.ToString(col);
+                    string strRow = row.ToString();
+                    Entries.Add(strRow + col, entry);
+                    col++;                  
                 }
                 Grid.Add(horizontal);
+                row++;
             }
+
         }
 
+        /// <summary>
+        /// In the event that the grid has loaded, set selected cell to A1
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void GridLoaded(object sender, EventArgs e)
 
+        {
+            string start = "A1";
+        }
         void FileMenuNew(object sender, EventArgs args)
         {
             for (int i = 0; i < 10; i++)
@@ -143,6 +168,16 @@ namespace GUI
 
             Spreadsheet spreadsheet = new Spreadsheet();
             spreadsheet.Save("hello");
+        }
+
+        private void CellChangedValue(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ActionCompleted(object sender, EventArgs e)
+        {
+            
         }
     }
 }

@@ -41,7 +41,11 @@
                     HeightRequest="500">
             <HorizontalStackLayout>
                 <VerticalStackLayout x:Name="LeftLabels"  BackgroundColor="LightBlue"></VerticalStackLayout>
-                <VerticalStackLayout x:Name="Grid"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
+                <VerticalStackLayout x:Name="Grid"        Loaded ="GridLoaded" BackgroundColor="LightGoldenrodYellow">
+                    <Entry x:Name="entry"                         
+                        TextChanged="CellChangedValue"
+                        Completed="ActionCompleted" />
+                </VerticalStackLayout>
             </HorizontalStackLayout>
         </ScrollView>
     </VerticalStackLayout>
