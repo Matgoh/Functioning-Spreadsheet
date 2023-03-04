@@ -4,13 +4,13 @@ namespace GUI
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
         private object label;
 
         public MainPage()
         {
             InitializeComponent();
 
+            // Fill top characters of spreadsheet
             Char c = 'A';
             for (int i = 0; i < 26; i++)
             {
@@ -34,6 +34,8 @@ namespace GUI
                   );
                 c++;
             }
+
+            // Fill the left labels of spreadsheet
             int num = 1;
             for (int i = 0; i < 99; i++)
             {
@@ -57,28 +59,33 @@ namespace GUI
                   );
                 num++;
             }
-
+           
+            // Fills all the mid section of the grid
             label = null;
-            for (int i = 0; i < 52; i++)
+            for (int i = 0; i < 99; i++)
             {
-                GridH.Add(
-                new Border
+                HorizontalStackLayout horizontal = new HorizontalStackLayout();
+                for (int j = 0; j < 26; j++)
                 {
-                    Stroke = Color.FromRgb(0, 0, 0),
-                    StrokeThickness = 1,
-                    HeightRequest = 20,
-                    WidthRequest = 75,
-                    HorizontalOptions = LayoutOptions.Center,
-                    Content =
-                         new Label
-                         {
-                            Text = $"{label}",
-                            BackgroundColor = Color.FromRgb(200, 200, 250),
-                            HorizontalTextAlignment = TextAlignment.Center
-                         }
+                    horizontal.Add(
+                    new Border
+                    {
+                        Stroke = Color.FromRgb(0, 0, 0),
+                        StrokeThickness = 1,
+                        HeightRequest = 20,
+                        WidthRequest = 75,
+                        HorizontalOptions = LayoutOptions.Center,
+                        Content =
+                             new Label
+                             {
+                                 Text = $"{label}",
+                                 BackgroundColor = Color.FromRgb(200, 200, 250),
+                                 HorizontalTextAlignment = TextAlignment.Center
+                             }
+                    }
+                    );                    
                 }
-                );              
-               
+                Grid.Add(horizontal);
             }
         }
 

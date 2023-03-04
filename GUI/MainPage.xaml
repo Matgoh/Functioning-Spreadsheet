@@ -13,6 +13,8 @@
             <MenuFlyoutItem Text="Save" x:Name ="SaveButton" 
                             Clicked="OnSaveFile" />
         </MenuBarItem>
+        <MenuBarItem Text="Help">
+        </MenuBarItem>
     </ContentPage.MenuBarItems>
 
     <VerticalStackLayout x:Name="Entire">
@@ -39,8 +41,7 @@
                     HeightRequest="500">
             <HorizontalStackLayout>
                 <VerticalStackLayout x:Name="LeftLabels"  BackgroundColor="LightBlue"></VerticalStackLayout>
-                <VerticalStackLayout x:Name="GridV"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
-                <HorizontalStackLayout x:Name="GridH"      BackgroundColor="LightGoldenrodYellow"></HorizontalStackLayout>
+                <VerticalStackLayout x:Name="Grid"        BackgroundColor="LightGoldenrodYellow"></VerticalStackLayout>
             </HorizontalStackLayout>
         </ScrollView>
     </VerticalStackLayout>
