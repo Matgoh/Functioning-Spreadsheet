@@ -176,6 +176,11 @@ namespace GUI
             
         }
 
+        /// <summary>
+        /// Event handler that will scroll the top labels if the grid sections is scrolled 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TableScrolled(object sender, ScrolledEventArgs e)
         {
             double xPos = Table.ScrollX;
