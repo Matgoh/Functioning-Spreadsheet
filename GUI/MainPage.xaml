@@ -29,8 +29,11 @@
         </Border>
 
         <!-- the column headers: A, B, C, ... -->
-        <HorizontalStackLayout x:Name="TopLabels" BackgroundColor="LightBlue"/>
-       
+        <ScrollView
+                    x:Name ="TopLabelScroll"
+                    Orientation="Horizontal">
+            <HorizontalStackLayout x:Name="TopLabels" BackgroundColor="LightBlue"/>
+        </ScrollView>
         
         <!-- the Grid of Spreadsheet GUI Cells -->
         <ScrollView 
@@ -38,6 +41,7 @@
                     Orientation="Both"
                     HorizontalOptions="FillAndExpand"
                     HorizontalScrollBarVisibility="Always"
+                    Scrolled="TableScrolled"
                     HeightRequest="500">
             <HorizontalStackLayout>
                 <VerticalStackLayout x:Name="LeftLabels"  BackgroundColor="LightBlue"></VerticalStackLayout>

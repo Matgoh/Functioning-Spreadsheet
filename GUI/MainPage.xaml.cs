@@ -40,7 +40,7 @@ namespace GUI
 
             // Fill the left labels of spreadsheet
             int num = 1;
-            for (int i = 0; i < 99; i++)
+            for (int i = 0; i < 10; i++)
             {
                 label = num;
                 LeftLabels.Add(
@@ -64,11 +64,10 @@ namespace GUI
             }
            
             // Fills all the mid section of the grid
-            label = null;
             char col = 'A';
             int row = 1;
             Entry entry;
-            for (int i = 0; i < 99; i++)
+            for (int i = 0; i < 10; i++)
             {
                 HorizontalStackLayout horizontal = new HorizontalStackLayout();
                 for (int j = 0; j < 26; j++)
@@ -88,7 +87,6 @@ namespace GUI
                         Content =
                              entry = new Entry
                              {
-                                 Text = $"{label}",
                                  BackgroundColor = Color.FromRgb(200, 200, 250),
                                  HorizontalTextAlignment = TextAlignment.Center
                              }
@@ -111,9 +109,7 @@ namespace GUI
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void GridLoaded(object sender, EventArgs e)
-
         {
-            string start = "A1";
         }
         void FileMenuNew(object sender, EventArgs args)
         {
@@ -178,6 +174,12 @@ namespace GUI
         private void ActionCompleted(object sender, EventArgs e)
         {
             
+        }
+
+        private void TableScrolled(object sender, ScrolledEventArgs e)
+        {
+            double xPos = Table.ScrollX;
+            TopLabelScroll.ScrollToAsync(xPos, 0, true);
         }
     }
 }
