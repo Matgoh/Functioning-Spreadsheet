@@ -8,6 +8,9 @@ namespace GUI
     {
         private object label;
         private Dictionary<string, int> Entries;
+        private Dictionary<string, Entry> NameAndEntries;
+        private Dictionary<Entry, string> EntriesAndName;
+        Spreadsheet spreadsheet = new Spreadsheet();
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -40,6 +43,8 @@ namespace GUI
         {
             InitializeComponent();
             Entries = new Dictionary<string, int>();
+            NameAndEntries= new Dictionary<string, Entry>();
+            EntriesAndName = new Dictionary<Entry, string>();
 
             // Fill top characters of spreadsheet
             char c = 'A';
@@ -78,7 +83,6 @@ namespace GUI
             }
 
             // Fill the left labels of spreadsheet
-
             int num = 1;
             for (int i = 0; i < 10; i++)
             {
@@ -103,7 +107,7 @@ namespace GUI
                 num++;
             }
 
-            // Fills all the mid section of the grid
+            // Fills the mid section of the grid
             char col = 'A';
             int row = 1;
             int entryNum = 0;  
@@ -134,9 +138,11 @@ namespace GUI
                              }
                     }
                     );
-                    string strCol = char.ToString(col);
-                    string strRow = row.ToString();
-                    Entries.Add(strCol + strRow, entryNum);
+                    string name = char.ToString(col) + row.ToString();
+
+                    NameAndEntries.Add(name, EntryColumn[entryNum]);
+                    EntriesAndName.Add(EntryColumn[entryNum], name);
+                    Entries.Add(name, entryNum);
                     col++;
                     entryNum++;
                 }
@@ -149,8 +155,29 @@ namespace GUI
             {
 //              EntryList.Add(cell);
                 ClearAll += cell.ClearAndUnfocus;
+                cell.Focused += FocusedCell;
+ //             cell.Unfocused += UnfocusedCell;
             }
+            
 
+        }
+
+        //private void UnfocusedCell(object sender, FocusEventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+
+        /// <summary>
+        /// When a cell is focused, display the name of the cell in top left widget 
+        /// as well as the content and value.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FocusedCell(object sender, FocusEventArgs e)
+        {
+            value.Text = EntriesAndName[(Entry)sender];
+            contents.Text = ((Entry)sender).Text;
         }
 
         /// <summary>
@@ -164,12 +191,24 @@ namespace GUI
         /// <param name="row"> e.g., The  5  in A5 </param>
         void handleCellChanged(char col, int row)
         {
+            string name = col.ToString() + row.ToString();
+            var myText = EntryColumn[Entries[name]].Text;
+
+            IList<string> list = spreadsheet.SetContentsOfCell(name, myText);
+            
+            //foreach (string namee in list)
+            //{
+            //    // Formula error, double, or string
+            //    EntryColumn[Entries[namee]].Text = spreadsheet.GetCellValue(namee);
+            //}
+            
             Debug.WriteLine($"changed: {col}{row}"); 
-            if (row != 10) { EntryColumn[Entries[col.ToString() + row.ToString()] + 26].Focus(); }  // Move the focus                                                                                                  
+            if (row != 10) { EntryColumn[Entries[name] + 26].Focus(); }                       
         }
 
         /// <summary>
         /// In the event that the grid has loaded, set selected cell to A1
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -188,13 +227,19 @@ namespace GUI
             bool answer = await DisplayAlert("Question?", "Would you like to close the spreadsheet?", "Yes", "No");
             Debug.WriteLine("Answer: " + answer);
 
-            // If yes, clear the spreadsheet
+            // If yes, clear the spreadsheet and set focus to A1
             if (answer == true)
             {
                 ClearAll();
+                EntryColumn[0].Focus();
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void FileMenuOpenAsync(object sender, EventArgs args)
         {
             for (int i = 0; i < 10; i++)
@@ -219,27 +264,18 @@ namespace GUI
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
         private void OnSaveFile(object sender, EventArgs args)
         {
-
-            Spreadsheet spreadsheet = new Spreadsheet();
             spreadsheet.Save("hello");
         }
 
-        private void CellChangedValue(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ActionCompleted(object sender, EventArgs e)
-        {
-
-        }
-
-        
-
         /// <summary>
-        /// Event handler that will scroll the top labels if the grid sections is scrolled 
+        /// Event handler that will scroll the top labels if the grid sections are scrolled 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

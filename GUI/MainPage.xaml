@@ -24,9 +24,9 @@
             StrokeThickness="2"
             HeightRequest="40">
             <HorizontalStackLayout>
-                <Label x:Name="selectedCell" Text="Stuff could go here" WidthRequest="100"/>
-                <Label x:Name="name" Text="Stuff could go here" WidthRequest="100"/>
-                <Label x:Name="contents" Text="Stuff could go here" WidthRequest="100"/>
+                <Label x:Name="value" Text="Value:" WidthRequest="100"/>
+                <Label x:Name="name" Text="Name:" WidthRequest="100"/>
+                <Entry x:Name="contents" Text="Content:" WidthRequest="100"/>
             </HorizontalStackLayout>
         </Border>
 
