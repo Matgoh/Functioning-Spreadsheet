@@ -7,7 +7,7 @@ namespace GUI
     public partial class MainPage : ContentPage
     {
         private object label;
-        private Dictionary<string, object> Entries;
+        private Dictionary<string, int> Entries;
 
         /// <summary>
         ///   Definition of the method signature that must be true for clear methods
@@ -23,7 +23,7 @@ namespace GUI
         /// <summary>
         ///   List of Entries to show how to "move around" via enter key
         /// </summary>
-        private MyEntry[] EntryColumn = new MyEntry[27];
+        private MyEntry[] EntryColumn = new MyEntry[260];
 
         /// <summary>
         ///    Definition of what information (method signature) must be sent
@@ -39,10 +39,10 @@ namespace GUI
         public MainPage()
         {
             InitializeComponent();
-            Entries = new Dictionary<string, object>();
+            Entries = new Dictionary<string, int>();
 
             // Fill top characters of spreadsheet
-            Char c = 'A';
+            char c = 'A';
             for (int i = 0; i < 27; i++)
             {
                 // If statement to have blank cell in top left of spreadsheet
@@ -106,9 +106,8 @@ namespace GUI
             // Fills all the mid section of the grid
             char col = 'A';
             int row = 1;
-            int ColCount = 0;
-            int RowCount = 0;   
-            Entry entry;
+            int entryNum = 0;  
+
             HorizontalStackLayout horizontal = new HorizontalStackLayout();
             for (int i = 0; i < 10; i++)
             {
@@ -117,7 +116,6 @@ namespace GUI
                     if (j == 0)
                     {
                         col = 'A';
-                        ColCount = 0;
                     }
                     horizontal.Add(
                     new Border
@@ -128,8 +126,9 @@ namespace GUI
                         WidthRequest = 75,
                         HorizontalOptions = LayoutOptions.Center,
                         Content =
-                             EntryColumn[ColCount] = new MyEntry(RowCount, handleCellChanged)
+                             EntryColumn[entryNum] = new MyEntry(row, col, handleCellChanged)
                              {
+                                 Text = $"{char.ToString(col) + row.ToString()}",
                                  BackgroundColor = Color.FromRgb(200, 200, 250),
                                  HorizontalTextAlignment = TextAlignment.Center
                              }
@@ -137,21 +136,27 @@ namespace GUI
                     );
                     string strCol = char.ToString(col);
                     string strRow = row.ToString();
-                    Entries.Add(strCol + strRow, EntryColumn[ColCount]);
+                    Entries.Add(strCol + strRow, entryNum);
                     col++;
-                    ColCount++;
+                    entryNum++;
                 }
                 Grid.Add(horizontal);
                 horizontal = new HorizontalStackLayout();
                 row++;
-                RowCount++;
+            }
+
+            foreach (var cell in EntryColumn)
+            {
+//              EntryList.Add(cell);
+                ClearAll += cell.ClearAndUnfocus;
             }
 
         }
 
         /// <summary>
         ///   This method will be called by the individual Entry elements when Enter
-        ///   is pressed in them.
+        ///   is pressed in them. When modifying and pressing enter, the cell below 
+        ///   should be focused.
         ///   
         ///   The idea is to move to the next cell in the list.
         /// </summary>
@@ -159,13 +164,8 @@ namespace GUI
         /// <param name="row"> e.g., The  5  in A5 </param>
         void handleCellChanged(char col, int row)
         {
-            Debug.WriteLine($"changed: {col}{row}");
-
-            for (int i = 0; i <= 10; i++)
-            { 
-                if (row == 10){ EntryColumn[i+1].Focus(); } 
-                if (row == i) { EntryColumn[i+1].Focus(); }  // Notice how we can move the focus
-            }
+            Debug.WriteLine($"changed: {col}{row}"); 
+            if (row != 10) { EntryColumn[Entries[col.ToString() + row.ToString()] + 26].Focus(); }  // Move the focus                                                                                                  
         }
 
         /// <summary>
@@ -174,30 +174,24 @@ namespace GUI
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void GridLoaded(object sender, EventArgs e)
-        {            
-            Content.Focus();
-        }
-        private void FileMenuNew(object sender, EventArgs args)
         {
-            for (int i = 0; i < 10; i++)
+            EntryColumn[0].Focus();
+        }
+
+        /// <summary>
+        /// In the event of clicking new file, warn before replacing
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        async private void FileMenuNew(object sender, EventArgs args)
+        {
+            bool answer = await DisplayAlert("Question?", "Would you like to close the spreadsheet?", "Yes", "No");
+            Debug.WriteLine("Answer: " + answer);
+
+            // If yes, clear the spreadsheet
+            if (answer == true)
             {
-                TopLabels.Add(
-                  new Border
-                  {
-                      Stroke = Color.FromRgb(0, 0, 0),
-                      StrokeThickness = 1,
-                      HeightRequest = 25,
-                      WidthRequest = 75,
-                      HorizontalOptions = LayoutOptions.Center,
-                      Content =
-                          new Label
-                          {
-                              Text = $"{label}",
-                              BackgroundColor = Color.FromRgb(200, 200, 250),
-                              HorizontalTextAlignment = TextAlignment.Center
-                          }
-                  }
-                  );
+                ClearAll();
             }
         }
 

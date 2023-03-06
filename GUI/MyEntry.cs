@@ -15,6 +15,7 @@ namespace GUI;
 /// </summary>
 public class MyEntry : Entry
 {
+    char col = 'A';
     //JIM: better?--> int row = 0;
 
     /// <summary>
@@ -27,11 +28,12 @@ public class MyEntry : Entry
     ///   build an Entry element with the row "remembered"
     /// </summary>
     /// <param name="row"> unique identifier for this item </param>
+    /// <param name="col"> Takes in col 
     /// <param name="changeAction"> outside action that should be invoked after this cell is modified </param>
-    public MyEntry(int row, ActionOnCompleted changeAction) : base()
+    public MyEntry(int row, char col, ActionOnCompleted changeAction) : base()
     {
-        //JIM: better?-->        this.row = row;
         this.StyleId = $"{row}";
+        this.col = col;
 
         // Action to take when the user presses enter on this cell
         this.Completed += CellChangedValue;
@@ -60,8 +62,7 @@ public class MyEntry : Entry
         Unfocus();
 
         // Inform the outside world that we have changed
-        onChange('A', Convert.ToInt32(this.StyleId));
-        //Jim Better? --> onChange( 'A', row );
+        onChange(col, Convert.ToInt32(this.StyleId));
     }
 
 }
