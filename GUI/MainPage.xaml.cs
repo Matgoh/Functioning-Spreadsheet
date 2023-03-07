@@ -6,6 +6,25 @@ using System.Text.RegularExpressions;
 
 namespace GUI
 {
+    /// <summary>
+    /// Author:    Matthew Goh
+    /// Partner:   None
+    /// Date:      6 March 2023
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and Matthew Goh - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, Matthew Goh and Alex Qi, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    /// 
+    /// This main page initializes the grid and all of its components. It supports the modification of
+    /// cells that update as dependents are changed as well as saving, opening, and creating new
+    /// spreadsheet files. 
+    /// </summary>
     public partial class MainPage : ContentPage
     {
         private object label;
@@ -29,7 +48,7 @@ namespace GUI
         /// <summary>
         ///   List of Entries to show how to "move around" via enter key
         /// </summary>
-        private MyEntry[] EntryColumn = new MyEntry[260];
+        private MyEntry[] EntryColumn = new MyEntry[2574];
 
         /// <summary>
         ///    Definition of what information (method signature) must be sent
@@ -88,7 +107,7 @@ namespace GUI
 
             // Fill the left labels of spreadsheet
             int num = 1;
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 99; i++)
             {
                 label = num;
                 LeftLabels.Add(
@@ -117,7 +136,7 @@ namespace GUI
             int entryNum = 0;
 
             HorizontalStackLayout horizontal = new HorizontalStackLayout();
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 99; i++)
             {
                 for (int j = 0; j < 26; j++)
                 {
@@ -241,7 +260,7 @@ namespace GUI
                 }
             }
             // Fill in the name and contents widgets
-            name.Text = EntriesAndName[(Entry)sender];
+            Name.Text = EntriesAndName[(Entry)sender];
             contents.Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
             value.Text = spreadsheet.GetCellValue(EntriesAndName[(Entry)sender]).ToString();
         }
@@ -254,7 +273,6 @@ namespace GUI
         /// <param name="e"></param>
         private void OnEntryTextChanged(object sender, EventArgs e)
         {
-
         }
 
         /// <summary>
@@ -272,7 +290,7 @@ namespace GUI
 
             // Move focus to the next cell
             Debug.WriteLine($"changed: {col}{row}");
-            if (row != 10) { EntryColumn[Entries[name] + 26].Focus(); }
+            if (row != 99) { EntryColumn[Entries[name] + 26].Focus(); }
         }
 
         /// <summary>

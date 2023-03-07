@@ -11,13 +11,14 @@ Copyright:  CS 3500, Matthew Goh and Alex Qi - This work may not be copied for u
 
 # Overview of the Spreadsheet functionality
 
+There is now the final implementation of our spreadsheet project. There is a GUI that functions as a spreadsheet, allowing us to modify cells
+in a spreadsheet and calculate values. We can know also save, open, or create a new spreadsheet with widgets at the top of the display.
 There have been some changes to the Spreadsheet program. The expression evaluator is now able to catch errors in input before runtime,
 there are more delegates that allow the user to specify the type of variable inputted, and there are helper methods that allow comparison
 between expressions. A big change we have made allows the user to convert a group of cells to an XML file as well as convert an XML file 
 full of cells back into code. We have now added a spreadsheet functionality, including the creation of cells that can be manipulated like 
 adding cells or returning the contents. The spreadsheet also prevents incorrect inputs and circular dependencies. The spreadsheet also has 
-the ability to conduct a series of operations on an ordered pair that represents the dependents and dependees of a dependency graph. Future 
-extensions are creating the GUI interface for our spreadsheet project. 
+the ability to conduct a series of operations on an ordered pair that represents the dependents and dependees of a dependency graph.
 
 # Time Expenditures:
 
@@ -26,4 +27,4 @@ extensions are creating the GUI interface for our spreadsheet project.
     3. Assignment Three: Predicted Hours:          16        Actual Hours:   20 (Formulating code - 9, Debugging/Testing/formatting - 8, figuring out assignment - 3)
     4. Assignment Four:  Predicted Hours:          15        Actual Hours:   16 (Formulating code - 7, Debugging/Testing/formatting - 4, figuring out assignment - 5)
     5. Assignment Five:  Predicted Hours:          17        Actual Hours:   21 (Formulating code - 10, Debugging/Testing/formatting - 7, figuring out assignment - 4)
-    6. Assignment Six:   Predicted Hours:          20        Actual Hours:   TBD
+    6. Assignment Six:   Predicted Hours:          20        Actual Hours:   30

@@ -37,9 +37,9 @@ Copyright:  CS 3500, Matthew Goh and Alex Qi - This work may not be copied for u
 # Assignment Specific Topics:
 
 Matthew:
-	- Time Spent Effectively:
-	- Time Spent Debugging:
-	- Time Spent Learning:
+	- Time Spent Effectively:2
+	- Time Spent Debugging:6
+	- Time Spent Learning:12
 
 //TODO: Add a paragraph or two to the README reflecting on how your estimates are getting better/worse/etc. 
 and what they are telling you about your abilities.
@@ -58,15 +58,15 @@ I believe my estimates are getting much better as we continue each project becau
 # References:
 
 	1. Asynchronous programming - https://learn.microsoft.com/en-us/dotnet/csharp/asynchronous-programming/async-scenarios
-	2. 
-	3. 
-	4. 
-	5. 
-	6. 
-	7. 
-	8. 
-	9. 
-	10. 
+	2. How do you find the newly focused element in .net-maui (used inside unfocused event handler) - https://stackoverflow.com/questions/73649236/how-do-you-find-the-newly-focused-element-in-net-maui-used-inside-unfocused-ev
+	3. https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.control.focus?view=windowsdesktop-7.0
+	4. https://dotnet.microsoft.com/en-us/learn/maui/first-app-tutorial/modify
+	5. https://stackoverflow.com/questions/74716904/how-to-set-button-click-event-handler-in-net-maui
+	6. https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/button?view=net-maui-7.0
+	7. https://learn.microsoft.com/en-us/dotnet/maui/user-interface/controls/label?view=net-maui-7.0
+	8. https://learn.microsoft.com/en-us/dotnet/maui/user-interface/menu-bar?view=net-maui-7.0
+	9. https://learn.microsoft.com/en-us/dotnet/maui/user-interface/pop-ups?view=net-maui-7.0
+	10. https://stackoverflow.com/questions/31169029/setting-the-focus-to-an-entry-in-xamarin-forms
 
 
 

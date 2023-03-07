@@ -4,15 +4,11 @@ using static GUI.MainPage;
 namespace GUI;
 
 /// <summary>
-///   Author: H. James de St. Germain
+///   Author: H. James de St. Germain, Matthew Goh, and Alex Qi
 ///   Date:   Spring 2023
 ///   
-///   This code shows:
-///   1) How to augment a Maui Widget (i.e., Entry) to add more information
-///       a) using StyleId
-///       b) using fields
-///   2) How to provide a method that matches an event handler (used to clear all cells)
-///   3) How to attach a method to an event handler (i.e., Completed)
+///   This code creates the entries of the spreadsheet and provides event
+///   handlers for the clear events.
 /// </summary>
 public class MyEntry : Entry
 {
