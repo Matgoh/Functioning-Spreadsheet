@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Math;
+using SpreadsheetUtilities;
 using SS;
 using System.Diagnostics;
 
@@ -10,6 +11,7 @@ namespace GUI
         private Dictionary<string, int> Entries;
         private Dictionary<string, Entry> NameAndEntries;
         private Dictionary<Entry, string> EntriesAndName;
+        private List<Entry> formulaList;
         Spreadsheet spreadsheet = new Spreadsheet();
 
         /// <summary>
@@ -45,6 +47,7 @@ namespace GUI
             Entries = new Dictionary<string, int>();
             NameAndEntries= new Dictionary<string, Entry>();
             EntriesAndName = new Dictionary<Entry, string>();
+            formulaList = new List<Entry>();
 
             // Fill top characters of spreadsheet
             char c = 'A';
@@ -187,23 +190,26 @@ namespace GUI
                     // Catch the formula error
                     catch (Exception)
                     {
-                        DisplayAlert("ERROR", "Invalid input", "OK");
+                        DisplayAlert("ERROR:", "Formula Error", "OK");
                     }
                 }
             }
             catch (Exception)
             {
-                DisplayAlert("ERROR", "Invalid input", "OK");
+                DisplayAlert("ERROR:", "Invalid Formula", "OK");
             }
             if (myText.Contains('='))
             {
                 try
                 {
                     ((Entry)sender).Text = spreadsheet.GetCellValue(EntriesAndName[(Entry)sender]).ToString();
+
+                   // Keep track of all the entries that are formulas so we can return contents if cell is selected
+                    formulaList.Add((Entry)sender);
                 }
                 catch (Exception)
                 {
-                    DisplayAlert("ERROR", "Invalid input", "OK");
+                    DisplayAlert("ERROR:", "Formula Error", "OK");
                 }
 
             }
@@ -211,14 +217,23 @@ namespace GUI
 
 
         /// <summary>
-        /// When a cell is focused, display the name of the cell in top left widget 
-        /// as well as the content and value.
+        /// When a cell is focused, display the contents of the cell and the name of the cell in top left widget 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void FocusedCell(object sender, FocusEventArgs e)
         {
-            ((Entry)sender).Text = "=" + spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+            // If cell is a formula, add equals so cell calculates to value after being unfocused
+            if (formulaList.Contains((Entry)sender))
+            {
+                ((Entry)sender).Text = "=" + spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+            }
+            else
+            {
+                ((Entry)sender).Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+            }
+
+            // Fill in the name and contents widgets
             name.Text = EntriesAndName[(Entry)sender];
             contents.Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
         }
