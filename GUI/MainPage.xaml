@@ -12,8 +12,7 @@
                             Clicked="FileMenuOpenAsync" />
             <MenuFlyoutItem Text="Save" x:Name ="SaveButton" 
                             Clicked="OnSaveFile" />
-        </MenuBarItem>
-        <MenuBarItem Text="Help">
+            <MenuFlyoutItem Text="Help" x:Name ="help" Clicked="OnHelp"/>
         </MenuBarItem>
     </ContentPage.MenuBarItems>
 

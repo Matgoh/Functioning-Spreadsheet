@@ -2,6 +2,7 @@
 using SpreadsheetUtilities;
 using SS;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace GUI
 {
@@ -45,7 +46,7 @@ namespace GUI
         {
             InitializeComponent();
             Entries = new Dictionary<string, int>();
-            NameAndEntries= new Dictionary<string, Entry>();
+            NameAndEntries = new Dictionary<string, Entry>();
             EntriesAndName = new Dictionary<Entry, string>();
             formulaList = new List<Entry>();
 
@@ -113,7 +114,7 @@ namespace GUI
             // Fills the mid section of the grid
             char col = 'A';
             int row = 1;
-            int entryNum = 0;  
+            int entryNum = 0;
 
             HorizontalStackLayout horizontal = new HorizontalStackLayout();
             for (int i = 0; i < 10; i++)
@@ -135,7 +136,7 @@ namespace GUI
                         Content =
                              EntryColumn[entryNum] = new MyEntry(row, col, handleCellChanged)
                              {
-                                 Text = $"{char.ToString(col) + row.ToString()}",
+                                 Text = $"",
                                  BackgroundColor = Color.FromRgb(200, 200, 250),
                                  HorizontalTextAlignment = TextAlignment.Center
                              }
@@ -156,12 +157,12 @@ namespace GUI
 
             foreach (var cell in EntryColumn)
             {
-//              EntryList.Add(cell);
+                //              EntryList.Add(cell);
                 ClearAll += cell.ClearAndUnfocus;
                 cell.Focused += FocusedCell;
                 cell.Unfocused += UnfocusedCell;
             }
-            
+
 
         }
 
@@ -198,20 +199,20 @@ namespace GUI
             {
                 DisplayAlert("ERROR:", "Invalid Formula", "OK");
             }
-            if (myText.Contains('='))
+
+            try
             {
-                try
+                if (myText.Contains("="))
                 {
                     ((Entry)sender).Text = spreadsheet.GetCellValue(EntriesAndName[(Entry)sender]).ToString();
 
-                   // Keep track of all the entries that are formulas so we can return contents if cell is selected
+                    // Keep track of all the entries that are formulas so we can return contents if cell is selected
                     formulaList.Add((Entry)sender);
                 }
-                catch (Exception)
-                {
-                    DisplayAlert("ERROR:", "Formula Error", "OK");
-                }
-
+            }
+            catch (Exception)
+            {
+                DisplayAlert("ERROR:", "Formula Error", "OK");
             }
         }
 
@@ -223,19 +224,26 @@ namespace GUI
         /// <param name="e"></param>
         private void FocusedCell(object sender, FocusEventArgs e)
         {
-            // If cell is a formula, add equals so cell calculates to value after being unfocused
-            if (formulaList.Contains((Entry)sender))
-            {
-                ((Entry)sender).Text = "=" + spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
-            }
-            else
-            {
-                ((Entry)sender).Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
-            }
+            // There must be something in the cell before adding "="
+            Regex regex = new Regex(@"[a-zA-Z0-9]");
 
+            // If cell is a formula, add equals so cell calculates to value after being unfocused
+            if (regex.IsMatch(((Entry)sender).Text))
+            {
+                // If cell is a formula, add "=" so cell calculates to value after being unfocused
+                if (formulaList.Contains((Entry)sender))
+                {
+                    ((Entry)sender).Text = "=" + spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+                }
+                else
+                {
+                    ((Entry)sender).Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+                }
+            }
             // Fill in the name and contents widgets
             name.Text = EntriesAndName[(Entry)sender];
             contents.Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+            value.Text = spreadsheet.GetCellValue(EntriesAndName[(Entry)sender]).ToString();
         }
 
         /// <summary>
@@ -246,7 +254,7 @@ namespace GUI
         /// <param name="e"></param>
         private void OnEntryTextChanged(object sender, EventArgs e)
         {
-             new NotImplementedException();
+
         }
 
         /// <summary>
@@ -263,8 +271,8 @@ namespace GUI
             string name = col.ToString() + row.ToString();
 
             // Move focus to the next cell
-            Debug.WriteLine($"changed: {col}{row}"); 
-            if (row != 10) { EntryColumn[Entries[name] + 26].Focus(); }                       
+            Debug.WriteLine($"changed: {col}{row}");
+            if (row != 10) { EntryColumn[Entries[name] + 26].Focus(); }
         }
 
         /// <summary>
@@ -293,46 +301,59 @@ namespace GUI
             {
                 ClearAll();
                 EntryColumn[0].Focus();
+                formulaList.Clear();
             }
         }
 
         /// <summary>
-        /// 
+        /// Opening a spreadsheet from a saved file
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private void FileMenuOpenAsync(object sender, EventArgs args)
+        async private void FileMenuOpenAsync(object sender, EventArgs args)
         {
-            for (int i = 0; i < 10; i++)
+            string filepath = await DisplayPromptAsync("File Path:", "Where would you like to open your file from?");
+            try
             {
-                TopLabels.Add(
-                  new Border
-                  {
-                      Stroke = Color.FromRgb(0, 0, 0),
-                      StrokeThickness = 1,
-                      HeightRequest = 25,
-                      WidthRequest = 75,
-                      HorizontalOptions = LayoutOptions.Center,
-                      Content =
-                          new Label
-                          {
-                              Text = $"{label}",
-                              BackgroundColor = Color.FromRgb(200, 200, 250),
-                              HorizontalTextAlignment = TextAlignment.Center
-                          }
-                  }
-                  );
+                Spreadsheet s = new Spreadsheet(filepath, s => true, s => s, default);
+            }
+            catch (Exception)
+            {
+                await DisplayAlert("ERROR:", "file location not found", "OK");
             }
         }
 
         /// <summary>
-        /// 
+        /// Saving the spreadsheet contents to a file
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private void OnSaveFile(object sender, EventArgs args)
+        async private void OnSaveFile(object sender, EventArgs args)
         {
-            spreadsheet.Save("hello");
+            string filepath = await DisplayPromptAsync("File Path:", "Where would you like to save your file?");
+            try
+            {
+                spreadsheet.Save(filepath);
+            }
+            catch (Exception)
+            {
+                await DisplayAlert("ERROR:", "file location not found", "OK");
+            }
+        }
+
+        /// <summary>
+        /// Saving the spreadsheet contents to a file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        async private void OnHelp(object sender, EventArgs args)
+        {
+            await DisplayAlert("Help Information:",
+                                "This spreadsheet allows modification of cells by clicking on a respective cell and inputting " +
+                                "a formula or value then pressing enter or clicking on another cell to save it. You can scroll up " +
+                                "and down to access more cells, and the file menu allows you to create a new spreadsheet, save " +
+                                "your current spreadsheet, or open up an existing one.",
+                                "OK");
         }
 
         /// <summary>

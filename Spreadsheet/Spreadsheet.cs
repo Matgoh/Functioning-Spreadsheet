@@ -459,49 +459,63 @@ namespace SS
             List<String> dependents = new List<string>();
             string stringFormula;
 
-            if (object.Equals(name, null) || !validName(name) || !IsValid(name))
-                throw new InvalidNameException();
-
-            if (double.TryParse(content, out double value))
+            try
             {
-                // Set cell contents should already return list of dependents
-                dependents = new List<string>(SetCellContents(name, value));
-            }
+                if (object.Equals(name, null) || !validName(name) || !IsValid(name))
+                    throw new InvalidNameException();
 
-            // If there is no input, remove cell
-            else if (content.Equals(""))
-            {
-                cellSheet.Remove(name); return dependents;
-            }
-            // If content begins with an "="
-            else if (content.Substring(0, 1).Equals("="))
-            {
-                // Get formula without the equals sign
-                stringFormula = content.Substring(1, content.Length - 1);
-
-                // This will throw formula format exception if invalid
-                Formula f = new Formula(stringFormula, Normalize, IsValid);
-
-                // This will throw circular exception if invalid
-                dependents = new List<string>(SetCellContents(name, f));
-            }
-            // Treat as a string
-            else
-            {
-                dependents = new List<string>(SetCellContents(name, content));
-            }
-            Changed = true;
-
-            // ReEvaluate each of the cells that are dependent on the newly set element
-            foreach (string cell in dependents)
-            {
-                if (cellSheet[cell].Contents is Formula)
+                if (double.TryParse(content, out double value))
                 {
-                    Formula g = (Formula)cellSheet[cell].Contents;
-                    cellSheet[cell].Value = g.Evaluate(GetVal);
+                    // Set cell contents should already return list of dependents
+                    dependents = new List<string>(SetCellContents(name, value));
                 }
+
+                // If there is no input, remove cell
+                else if (content.Equals(""))
+                {
+                    cellSheet.Remove(name); return dependents;
+                }
+                // If content begins with an "="
+                else if (content.Substring(0, 1).Equals("="))
+                {
+                    try
+                    {
+                        // Get formula without the equals sign
+                        stringFormula = content.Substring(1, content.Length - 1);
+
+                        // This will throw formula format exception if invalid
+                        Formula f = new Formula(stringFormula, Normalize, IsValid);
+
+                        // This will throw circular exception if invalid
+                        dependents = new List<string>(SetCellContents(name, f));
+                    }
+                    catch
+                    {
+                        throw new FormulaFormatException("Formula error");
+                    }
+                }
+                // Treat as a string
+                else
+                {
+                    dependents = new List<string>(SetCellContents(name, content));
+                }
+                Changed = true;
+
+                // ReEvaluate each of the cells that are dependent on the newly set element
+                foreach (string cell in dependents)
+                {
+                    if (cellSheet[cell].Contents is Formula)
+                    {
+                        Formula g = (Formula)cellSheet[cell].Contents;
+                        cellSheet[cell].Value = g.Evaluate(GetVal);
+                    }
+                }
+                return dependents;
             }
-            return dependents;
+            catch(Exception)
+            {
+                throw new FormulaFormatException("formula error");
+            }
         }
 
         /// <summary>
@@ -696,12 +710,19 @@ namespace SS
                 throw new InvalidNameException();
             }
 
-            if (cellSheet.ContainsKey(name))
+            try
             {
-                return cellSheet[name].Value;
+                if (cellSheet.ContainsKey(name))
+                {
+                    return cellSheet[name].Value;
+                }
+                else
+                    return "";
             }
-            else
-                return "";
+            catch(Exception)
+            {
+                throw new InvalidNameException();
+            }
         }
 
         /// <summary>

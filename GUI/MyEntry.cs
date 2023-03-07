@@ -1,4 +1,5 @@
-﻿using static GUI.MainPage;
+﻿using SS;
+using static GUI.MainPage;
 
 namespace GUI;
 
@@ -47,8 +48,9 @@ public class MyEntry : Entry
     /// </summary>
     public void ClearAndUnfocus()
     {
-        this.Unfocus();
         this.Text = "";
+        this.Unfocus();
+        
     }
 
     /// <summary>
