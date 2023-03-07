@@ -156,16 +156,58 @@ namespace GUI
 //              EntryList.Add(cell);
                 ClearAll += cell.ClearAndUnfocus;
                 cell.Focused += FocusedCell;
- //             cell.Unfocused += UnfocusedCell;
+                cell.Unfocused += UnfocusedCell;
             }
             
 
         }
 
-        //private void UnfocusedCell(object sender, FocusEventArgs e)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// When a cell gets unfocused, calculate value and input into grid
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UnfocusedCell(object sender, FocusEventArgs e)
+        {
+            string myText = ((Entry)sender).Text;
+            try
+            {
+                IList<string> list = spreadsheet.SetContentsOfCell(EntriesAndName[(Entry)sender], myText);
+                foreach (string name in list)
+                {
+                    try
+                    {
+                        // Formula error, double, or string
+                        if (spreadsheet.GetCellValue(name).GetType() == typeof(string))
+                            EntryColumn[Entries[name]].Text = (string)spreadsheet.GetCellValue(name);
+                        else
+                            // Assume we are returning a double
+                            EntryColumn[Entries[name]].Text = spreadsheet.GetCellValue(name).ToString();
+                    }
+                    // Catch the formula error
+                    catch (Exception)
+                    {
+                        DisplayAlert("ERROR", "Invalid input", "OK");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                DisplayAlert("ERROR", "Invalid input", "OK");
+            }
+            if (myText.Contains('='))
+            {
+                try
+                {
+                    ((Entry)sender).Text = spreadsheet.GetCellValue(EntriesAndName[(Entry)sender]).ToString();
+                }
+                catch (Exception)
+                {
+                    DisplayAlert("ERROR", "Invalid input", "OK");
+                }
+
+            }
+        }
 
 
         /// <summary>
@@ -176,8 +218,20 @@ namespace GUI
         /// <param name="e"></param>
         private void FocusedCell(object sender, FocusEventArgs e)
         {
-            value.Text = EntriesAndName[(Entry)sender];
-            contents.Text = ((Entry)sender).Text;
+            ((Entry)sender).Text = "=" + spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+            name.Text = EntriesAndName[(Entry)sender];
+            contents.Text = spreadsheet.GetCellContents(EntriesAndName[(Entry)sender]).ToString();
+        }
+
+        /// <summary>
+        /// Method to handle if the user changes content from upper left entry.
+        /// Should result in cell contents changing.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnEntryTextChanged(object sender, EventArgs e)
+        {
+             new NotImplementedException();
         }
 
         /// <summary>
@@ -192,16 +246,8 @@ namespace GUI
         void handleCellChanged(char col, int row)
         {
             string name = col.ToString() + row.ToString();
-            var myText = EntryColumn[Entries[name]].Text;
 
-            IList<string> list = spreadsheet.SetContentsOfCell(name, myText);
-            
-            //foreach (string namee in list)
-            //{
-            //    // Formula error, double, or string
-            //    EntryColumn[Entries[namee]].Text = spreadsheet.GetCellValue(namee);
-            //}
-            
+            // Move focus to the next cell
             Debug.WriteLine($"changed: {col}{row}"); 
             if (row != 10) { EntryColumn[Entries[name] + 26].Focus(); }                       
         }
