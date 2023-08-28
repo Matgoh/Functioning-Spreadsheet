@@ -12,7 +12,7 @@ Copyright:  CS 3500, Matthew Goh and Alex Qi - This work may not be copied for u
 # Overview of the Spreadsheet functionality
 
 There is now the final implementation of our spreadsheet project. There is a GUI that functions as a spreadsheet, allowing us to modify cells
-in a spreadsheet and calculate values. We can know also save, open, or create a new spreadsheet with widgets at the top of the display.
+in a spreadsheet and calculate values. We can now also save, open, or create a new spreadsheet with widgets at the top of the display.
 There have been some changes to the Spreadsheet program. The expression evaluator is now able to catch errors in input before runtime,
 there are more delegates that allow the user to specify the type of variable inputted, and there are helper methods that allow comparison
 between expressions. A big change we have made allows the user to convert a group of cells to an XML file as well as convert an XML file 
